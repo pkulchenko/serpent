@@ -8,9 +8,9 @@ Lua serializer and pretty printer.
     * Provides single-line and multi-line output.
     * Nested tables are properly indented in the multi-line output.
     * Numerical keys are listed first.
-    * Array part skips keys (@{'a', 'b'}@ instead of @{[1] = 'a', [2] = 'b'}@).
-    * `nil` values are included when expected (@{1, nil, 3}@ instead of @{1, [3]=3}@).
-    * Keys use short notation (@{foo = 'foo'}@ instead of @{['foo'] = 'foo'}@).
+    * Array part skips keys (`{'a', 'b'}` instead of `{[1] = 'a', [2] = 'b'}`).
+    * `nil` values are included when expected (`{1, nil, 3}` instead of `{1, [3]=3}`).
+    * Keys use short notation (`{foo = 'foo'}` instead of `{['foo'] = 'foo'}`).
     * Shared and self-references are marked in the output.
 * Machine readable: provides reliable deserialization using `loadstring()`.
 * Supports deeply nested tables.
@@ -18,7 +18,7 @@ Lua serializer and pretty printer.
 * Shared tables and functions stay shared after de/serialization.
 * Supports function serialization using `string.dump()`.
 * Supports serialization of global functions.
-* Escapes new-line (`\010`) and end-of-file control (`\026`) characters in strings.
+* Escapes new-line `\010` and end-of-file control `\026` characters in strings.
 
 ## Usage
 
