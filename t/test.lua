@@ -15,7 +15,7 @@ local a = {
   x=1, [true] = {b}, [not true]=2, -- boolean as key
   ['true'] = 'some value', -- keyword as a key
   z = c, -- function as value
-  list={'a',nil,nil, -- shared reference, embedded nils
+  list={'a',nil,nil, -- embedded nils
         [9]='i','f',[5]='g',[7]={}}, -- empty table
   [c] = print, -- function as key, global as value
   [io.stdin] = 3, -- global userdata as key
@@ -27,7 +27,7 @@ a.c = a -- self-reference
 a[a] = a -- self-reference with table as key
 
 print("pretty: " .. serpent.printmult(a) .. "\n") -- serialize(a, nil, '  ')
-print("line: " .. serpent.printsing(a) .. "\n") -- serialize(a)
+print("line: " .. serpent.printsing(a) .. "\n") -- serialize(a, nil)
 local str = serpent.serialize(a, 'a')
 print("full: " .. str .. "\n")
 
