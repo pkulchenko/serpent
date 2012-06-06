@@ -22,7 +22,7 @@ Lua serializer and pretty printer.
 
 ## Usage
 
-```
+```lua
 local serpent = require("serpent")
 local a = {1, nil, 3, x=1, ['true'] = 2, [not true]=3}
 a[a] = a -- self-reference with a table as key and value
