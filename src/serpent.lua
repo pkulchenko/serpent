@@ -1,6 +1,6 @@
 local n, v, c, d = "serpent", 0.1, -- (C) 2012 Paul Kulchenko; MIT License
   "Paul Kulchenko", "Serialization and pretty printing of Lua data types"
-local snum = {[tostring(1/0)]="math.huge",[tostring(-1/0)]="-math.huge",[tostring(0/0)]="0/0"}
+local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true}
 local keyword, globals, G = {}, {}, (_G or _ENV)
 for _,k in ipairs({'and', 'break', 'do', 'else', 'elseif', 'end', 'false',
