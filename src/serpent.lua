@@ -15,7 +15,7 @@ local function serialize(t, name, indent, fatal)
   local function gensym(val) return tostring(val):gsub("[^%w]","") end
   local function safestr(s) return type(s) == "number" and (snum[tostring(s)] or s)
     or type(s) ~= "string" and tostring(s) -- escape NEWLINE/010 and EOF/026
-    or ("%q"):format(s):gsub("\010","010"):gsub("\026","\\026") end
+    or ("%q"):format(s):gsub("\010","n"):gsub("\026","\\026") end
   local function comment(s) return ' --[['..tostring(s)..']]' end
   local function globerr(s) return globals[s] and globals[s]..comment(s) or not fatal
     and safestr(tostring(s))..' --[[err]]' or error("Can't serialize "..tostring(s)) end
