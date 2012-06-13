@@ -58,6 +58,7 @@ internal function, but set different options by default:
 * fatal (true/False) -- raise fatal error on non-serilizable values
 * nocode (true/False) -- disable bytecode serialization for easy comparison
 * nohuge (true/False) -- disable checking numbers against undefined and huge values
+* maxlevel (number) -- specify max level up to which to expand nested tables
 * custom (function) -- provide custom output for tables
 
 These options can be provided as a second parameter to Serpent functions.

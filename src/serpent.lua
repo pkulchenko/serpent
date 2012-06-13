@@ -11,15 +11,15 @@ for _,g in ipairs({'coroutine', 'debug', 'io', 'math', 'string', 'table', 'os'})
   for k,v in pairs(G[g]) do globals[v] = g..'.'..k end end
 
 local function s(t, opts)
-  local name, indent, fatal = opts['name'], opts['indent'], opts['fatal']
-  local sparse, nocode, custom = opts['sparse'], opts['nocode'], opts['custom']
-  local huge, space = not opts['nohuge'], (opts['compact'] and '' or ' ')
+  local name, indent, fatal = opts.name, opts.indent, opts.fatal
+  local sparse, custom, huge = opts.sparse, opts.custom, not opts.nohuge
+  local space, maxl = (opts.compact and '' or ' '), (opts.maxlevel or math.huge)
   local seen, sref = {}, {}
   local function gensym(val) return tostring(val):gsub("[^%w]","") end
   local function safestr(s) return type(s) == "number" and (huge and snum[tostring(s)] or s)
     or type(s) ~= "string" and tostring(s) -- escape NEWLINE/010 and EOF/026
     or ("%q"):format(s):gsub("\010","n"):gsub("\026","\\026") end
-  local function comment(s) return opts['comment'] and ' --[['..tostring(s)..']]' or '' end
+  local function comment(s) return opts.comment and ' --[['..tostring(s)..']]' or '' end
   local function globerr(s) return globals[s] and globals[s]..comment(s) or not fatal
     and safestr(tostring(s))..' --[[err]]' or error("Can't serialize "..tostring(s)) end
   local function safename(path, name) -- generates foo.bar, foo[3], or foo['b a r']
@@ -47,10 +47,11 @@ local function s(t, opts)
     elseif ttype == 'function' then
       seen[t] = spath
       local ok, res = pcall(string.dump, t)
-      local func = ok and (nocode and "function()error('dummy')end" or
+      local func = ok and (opts.nocode and "function()error('dummy')end" or
         "loadstring("..safestr(res)..",'@serialized')"..comment(t))
       return tag..(func or globerr(t))
     elseif ttype == "table" then
+      if level >= maxl then return tag..'{}'..comment('max') end
       seen[t] = spath
       if next(t) == nil then return tag..'{}'..comment(t) end -- table empty
       local maxn, o, out = #t, {}, {}
@@ -58,7 +59,7 @@ local function s(t, opts)
         if t[key] or not sparse then table.insert(o, key) end end
       for key in pairs(t) do -- then hash part (skip array keys up to maxn)
         if type(key) ~= "number" or key > maxn then table.insert(o, key) end end
-      if opts['sortkeys'] then alphanumsort(o, opts['sortkeys']) end
+      if opts.sortkeys then alphanumsort(o, opts.sortkeys) end
       for n, key in ipairs(o) do
         local value, ktype, plainindex = t[key], type(key), n <= maxn and not sparse
         if badtype[ktype] then plainindex, key = true, '['..globerr(key)..']' end
