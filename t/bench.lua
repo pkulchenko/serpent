@@ -1,6 +1,6 @@
 local ITERS = 1000
 local TESTS = {
-  serpent = function() return require("serpent").serialize end,
+  serpent = function() return require("serpent").dump end,
   penlight = function() return require("pl.pretty").write end,
   metalua = function() require("serialize"); return (_G or _ENV).serialize end,
   nucleo = function()

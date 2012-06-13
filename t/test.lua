@@ -1,5 +1,5 @@
 local serpent = require("serpent")
-local serialize = serpent.serialize
+local serialize = serpent.dump
 
 --[[ Penlight
 local serialize = require("pl.pretty").write --]]
@@ -26,9 +26,9 @@ local a = {
 a.c = a -- self-reference
 a[a] = a -- self-reference with table as key
 
-print("pretty: " .. serpent.printmult(a) .. "\n") -- serialize(a, nil, '  ')
-print("line: " .. serpent.printsing(a) .. "\n") -- serialize(a, nil)
-local str = serpent.serialize(a, 'a')
+print("pretty: " .. serpent.block(a) .. "\n")
+print("line: " .. serpent.line(a) .. "\n")
+local str = serpent.dump(a)
 print("full: " .. str .. "\n")
 
 local fun, err = loadstring(str)
@@ -45,5 +45,10 @@ assert(tostring(_a[_b]) == tostring(0/0), "table as key and undefined value: fai
 assert(_a[math.huge] == -math.huge, "math.huge as key and value: failed")
 assert(_a[io.stdin] == 3, "io.stdin as key: failed")
 assert(_a[_c] == print, "shared function as key and global function as value: failed")
-assert(#(_a.list) == #(a.list), "size of array part stays the same: failed")
 assert(#(_a.list[7]) == 0, "empty table stays empty: failed")
+assert(_a.list[4] == 'f', "specific table element preserves its value: failed")
+
+-- test without sparsness to check the number of elements in the list with nil
+_a = loadstring(serpent.dump(a, {sparse = false, nocode = true}))()
+assert(pcall(function() _a.z() end) == false, "nocode replaces functions with dummy errors: failed")
+assert(#(_a.list) == #(a.list), "size of array part stays the same: failed")
