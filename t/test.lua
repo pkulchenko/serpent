@@ -16,7 +16,7 @@ local a = {
   ['true'] = 'some value', -- keyword as a key
   z = c, -- function as value
   list={'a',nil,nil, -- embedded nils
-        [9]='i','f',[5]='g',[7]={}}, -- empty table
+        [9]='i','f',[5]='g',[7]={}, ['3'] = 33}, -- empty table
   [c] = print, -- function as key, global as value
   [io.stdin] = 3, -- global userdata as key
   ['label 2'] = b, -- shared reference
@@ -31,8 +31,10 @@ print("line: " .. serpent.line(a) .. "\n")
 local str = serpent.dump(a)
 print("full: " .. str .. "\n")
 
-local fun, err = loadstring(str)
-if err then error(err) end
+local fun, err = assert(loadstring(str))
+
+assert(loadstring(serpent.line(a, {name = '_'})), "line() method produces deserializable output: failed")
+assert(loadstring(serpent.block(a, {name = '_'})), "block() method produces deserializable output: failed")
 
 local _a = fun()
 local _b = _a['label 2'] -- shared reference

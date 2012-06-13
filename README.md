@@ -127,6 +127,10 @@ See LICENSE file.
 
 ## History
 
+Jun 13 2012 v0.14
+  - Fixed an issue with string keys with numeric values `['3']` getting mixed
+    with real numeric keys (only with `sortkeys` option set to `true`).
+
 Jun 13 2012 v0.13
   - Added maxlevel option.
   - Fixed key sorting such that `true` and `'true'` are always sorted in

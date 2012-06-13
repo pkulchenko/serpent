@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.13 -- (C) 2012 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.14 -- (C) 2012 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Serializer and pretty printer of Lua data types"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true}
@@ -29,11 +29,11 @@ local function s(t, opts)
     local safe = plain and n or '['..safestr(n)..']'
     return (path or '')..(plain and path and '.' or '')..safe, safe end
   local function alphanumsort(o, n)
-    local maxn = tonumber(n) or 12
+    local maxn, torder = tonumber(n) or 12, {number = 'a', string = 'b'}
     local function padnum(d) return ("%0"..maxn.."d"):format(d) end
     table.sort(o, function(a,b)
-      return tostring(a):gsub("%d+",padnum)..type(a)
-           < tostring(b):gsub("%d+",padnum)..type(b) end) end
+      return (torder[type(a)] or 'z')..(tostring(a):gsub("%d+",padnum))
+           < (torder[type(b)] or 'z')..(tostring(b):gsub("%d+",padnum)) end) end
   local function val2str(t, name, indent, path, plainindex, level)
     local ttype, level = type(t), (level or 0)
     local spath, sname = safename(path, name)
