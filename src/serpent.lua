@@ -28,7 +28,7 @@ local function s(t, opts)
     local plain = type(n) == "string" and n:match("^[%l%u_][%w_]*$") and not keyword[n]
     local safe = plain and n or '['..safestr(n)..']'
     return (path or '')..(plain and path and '.' or '')..safe, safe end
-  local function alphanumsort(o, n)
+  local alphanumsort = type(opts.sortkeys) == 'function' and opts.sortkeys or function(o, n)
     local maxn, torder = tonumber(n) or 12, {number = 'a', string = 'b'}
     local function padnum(d) return ("%0"..maxn.."d"):format(d) end
     table.sort(o, function(a,b)
