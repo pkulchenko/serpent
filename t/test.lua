@@ -52,3 +52,12 @@ assert(_a.list[4] == 'f', "specific table element preserves its value: failed")
 _a = loadstring(serpent.dump(a, {sparse = false, nocode = true}))()
 assert(pcall(function() _a.z() end) == false, "nocode replaces functions with dummy errors: failed")
 assert(#(_a.list) == #(a.list), "size of array part stays the same: failed")
+
+local diffable = {sortkeys = true, comment = false, nocode = true, indent = ' '}
+assert(serpent.block(a, diffable) == serpent.block(_a, diffable),
+ "block(a) == block(copy_of_a): failed")
+
+-- test maxlevel
+_a = loadstring(serpent.dump(a, {sparse = false, nocode = true, maxlevel = 1}))()
+assert(#(_a.list) == 0, "nested table 1 is empty with maxlevel=1: failed")
+assert(#(_a[true]) == 0, "nested table 2 is empty with maxlevel=1: failed")

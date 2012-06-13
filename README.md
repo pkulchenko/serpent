@@ -127,6 +127,12 @@ See LICENSE file.
 
 ## History
 
+Jun 13 2012 v0.13
+  - Added maxlevel option.
+  - Fixed key sorting such that `true` and `'true'` are always sorted in
+    the same order (for a more stable output).
+  - Removed addresses from names of temporary variables (for stable output).
+
 Jun 12 2012 v0.12
   - Added options to configure serialization process.
   - Added 'goto' to the list of keywords for Lua 5.2.

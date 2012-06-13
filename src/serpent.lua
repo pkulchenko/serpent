@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.12 -- (C) 2012 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.13 -- (C) 2012 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Serializer and pretty printer of Lua data types"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true}
@@ -14,8 +14,9 @@ local function s(t, opts)
   local name, indent, fatal = opts.name, opts.indent, opts.fatal
   local sparse, custom, huge = opts.sparse, opts.custom, not opts.nohuge
   local space, maxl = (opts.compact and '' or ' '), (opts.maxlevel or math.huge)
-  local seen, sref = {}, {}
-  local function gensym(val) return tostring(val):gsub("[^%w]","") end
+  local seen, sref, syms, symn = {}, {}, {}, 0
+  local function gensym(val) return tostring(val):gsub("[^%w]",""):gsub("(%d%w+)",
+    function(s) if not syms[s] then symn = symn+1; syms[s] = symn end return syms[s] end) end
   local function safestr(s) return type(s) == "number" and (huge and snum[tostring(s)] or s)
     or type(s) ~= "string" and tostring(s) -- escape NEWLINE/010 and EOF/026
     or ("%q"):format(s):gsub("\010","n"):gsub("\026","\\026") end
@@ -26,14 +27,13 @@ local function s(t, opts)
     local n = name == nil and '' or name
     local plain = type(n) == "string" and n:match("^[%l%u_][%w_]*$") and not keyword[n]
     local safe = plain and n or '['..safestr(n)..']'
-    return (path or '')..(plain and path and '.' or '')..safe, safe
-  end
+    return (path or '')..(plain and path and '.' or '')..safe, safe end
   local function alphanumsort(o, n)
     local maxn = tonumber(n) or 12
     local function padnum(d) return ("%0"..maxn.."d"):format(d) end
     table.sort(o, function(a,b)
-      return tostring(a):gsub("%d+",padnum) < tostring(b):gsub("%d+",padnum) end)
-  end
+      return tostring(a):gsub("%d+",padnum)..type(a)
+           < tostring(b):gsub("%d+",padnum)..type(b) end) end
   local function val2str(t, name, indent, path, plainindex, level)
     local ttype, level = type(t), (level or 0)
     local spath, sname = safename(path, name)
