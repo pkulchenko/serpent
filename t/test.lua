@@ -16,7 +16,8 @@ local a = {
   ['true'] = 'some value', -- keyword as a key
   z = c, -- function as value
   list={'a',nil,nil, -- embedded nils
-        [9]='i','f',[5]='g',[7]={}, ['3'] = 33}, -- empty table
+        [9]='i','f',[5]='g',[7]={}, -- empty table
+        ['3'] = 33, [-1] = -1, [1.2] = 1.2}, -- numeric and negative index
   [c] = print, -- function as key, global as value
   [io.stdin] = 3, -- global userdata as key
   ['label 2'] = b, -- shared reference
@@ -48,6 +49,8 @@ assert(_a[math.huge] == -math.huge, "math.huge as key and value: failed")
 assert(_a[io.stdin] == 3, "io.stdin as key: failed")
 assert(_a[_c] == print, "shared function as key and global function as value: failed")
 assert(#(_a.list[7]) == 0, "empty table stays empty: failed")
+assert(_a.list[-1] == -1, "negative index is in the right place: failed")
+assert(_a.list['3'] == 33, "string that looks like number as index: failed")
 assert(_a.list[4] == 'f', "specific table element preserves its value: failed")
 
 -- test without sparsness to check the number of elements in the list with nil

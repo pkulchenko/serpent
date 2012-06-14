@@ -130,6 +130,7 @@ See LICENSE file.
 Jun 13 2012 v0.14
   - Fixed an issue with string keys with numeric values `['3']` getting mixed
     with real numeric keys (only with `sortkeys` option set to `true`).
+  - Fixed an issue with negative and real value numeric keys being misplaced.
 
 Jun 13 2012 v0.13
   - Added maxlevel option.

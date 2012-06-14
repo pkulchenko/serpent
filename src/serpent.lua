@@ -29,11 +29,11 @@ local function s(t, opts)
     local safe = plain and n or '['..safestr(n)..']'
     return (path or '')..(plain and path and '.' or '')..safe, safe end
   local alphanumsort = type(opts.sortkeys) == 'function' and opts.sortkeys or function(o, n)
-    local maxn, torder = tonumber(n) or 12, {number = 'a', string = 'b'}
+    local maxn, to = tonumber(n) or 12, {number = 'a', string = 'b'}
     local function padnum(d) return ("%0"..maxn.."d"):format(d) end
     table.sort(o, function(a,b)
-      return (torder[type(a)] or 'z')..(tostring(a):gsub("%d+",padnum))
-           < (torder[type(b)] or 'z')..(tostring(b):gsub("%d+",padnum)) end) end
+      return (o[a] and 0 or to[type(a)] or 'z')..(tostring(a):gsub("%d+",padnum))
+           < (o[b] and 0 or to[type(b)] or 'z')..(tostring(b):gsub("%d+",padnum)) end) end
   local function val2str(t, name, indent, path, plainindex, level)
     local ttype, level = type(t), (level or 0)
     local spath, sname = safename(path, name)
@@ -55,15 +55,14 @@ local function s(t, opts)
       seen[t] = spath
       if next(t) == nil then return tag..'{}'..comment(t) end -- table empty
       local maxn, o, out = #t, {}, {}
-      for key = 1, maxn do -- first array part
-        if t[key] or not sparse then table.insert(o, key) end end
-      for key in pairs(t) do -- then hash part (skip array keys up to maxn)
-        if type(key) ~= "number" or key > maxn then table.insert(o, key) end end
+      for key = 1, maxn do table.insert(o, key) end
+      for key in pairs(t) do if not o[key] then table.insert(o, key) end end
       if opts.sortkeys then alphanumsort(o, opts.sortkeys) end
       for n, key in ipairs(o) do
         local value, ktype, plainindex = t[key], type(key), n <= maxn and not sparse
         if badtype[ktype] then plainindex, key = true, '['..globerr(key)..']' end
-        if ktype == 'table' or ktype == 'function' then
+        if sparse and value == nil then -- skipping nils; do nothing
+        elseif ktype == 'table' or ktype == 'function' then
           if not seen[key] and not globals[key] then
             table.insert(sref, 'local '..val2str(key,gensym(key),indent)) end
           table.insert(sref, seen[t]..'['..(seen[key] or globals[key] or gensym(key))
