@@ -11,6 +11,7 @@ local serialize = require("lua-nucleo.tserialize").tserialize --]]
 
 local b = {text="ha'ns", ['co\nl or']='bl"ue', str="\"\n'\\\000"}
 local c = function() return 1 end
+local d = {'sometable'}
 local a = {
   x=1, [true] = {b}, [not true]=2, -- boolean as key
   ['true'] = 'some value', -- keyword as a key
@@ -23,13 +24,14 @@ local a = {
   ['label 2'] = b, -- shared reference
   [b] = 0/0, -- table as key, undefined value as value
   [math.huge] = -math.huge, -- huge as number value
+  ignore = d -- table to ignore
 }
 a.c = a -- self-reference
 a[a] = a -- self-reference with table as key
 
-print("pretty: " .. serpent.block(a) .. "\n")
-print("line: " .. serpent.line(a) .. "\n")
-local str = serpent.dump(a)
+print("pretty: " .. serpent.block(a, {ignore = {[d] = true}}) .. "\n")
+print("line: " .. serpent.line(a, {ignore = {[d] = true}}) .. "\n")
+local str = serpent.dump(a, {ignore = {[d] = true}})
 print("full: " .. str .. "\n")
 
 local fun, err = assert(loadstring(str))
@@ -52,6 +54,7 @@ assert(#(_a.list[7]) == 0, "empty table stays empty: failed")
 assert(_a.list[-1] == -1, "negative index is in the right place: failed")
 assert(_a.list['3'] == 33, "string that looks like number as index: failed")
 assert(_a.list[4] == 'f', "specific table element preserves its value: failed")
+assert(_a.ignore == nil, "ignored table not serialized: failed")
 
 -- test without sparsness to check the number of elements in the list with nil
 _a = loadstring(serpent.dump(a, {sparse = false, nocode = true}))()

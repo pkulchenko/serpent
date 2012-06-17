@@ -60,14 +60,17 @@ local function s(t, opts)
       if opts.sortkeys then alphanumsort(o, opts.sortkeys) end
       for n, key in ipairs(o) do
         local value, ktype, plainindex = t[key], type(key), n <= maxn and not sparse
-        if badtype[ktype] then plainindex, key = true, '['..globerr(key)..']' end
-        if sparse and value == nil then -- skipping nils; do nothing
+        if opts.ignore and opts.ignore[value] -- skip ignored values; do nothing
+        or sparse and value == nil then -- skipping nils; do nothing
         elseif ktype == 'table' or ktype == 'function' then
           if not seen[key] and not globals[key] then
             table.insert(sref, 'local '..val2str(key,gensym(key),indent)) end
           table.insert(sref, seen[t]..'['..(seen[key] or globals[key] or gensym(key))
             ..']'..space..'='..space..(seen[value] or val2str(value,nil,indent)))
-        else table.insert(out,val2str(value,key,indent,spath,plainindex,level+1)) end
+        else
+          if badtype[ktype] then plainindex, key = true, '['..globerr(key)..']' end
+          table.insert(out,val2str(value,key,indent,spath,plainindex,level+1))
+        end
       end
       local prefix = string.rep(indent or '', level)
       local head = indent and '{\n'..prefix..indent or '{'

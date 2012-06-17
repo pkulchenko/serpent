@@ -59,13 +59,14 @@ internal function, but set different options by default:
 * nocode (true/False) -- disable bytecode serialization for easy comparison
 * nohuge (true/False) -- disable checking numbers against undefined and huge values
 * maxlevel (number) -- specify max level up to which to expand nested tables
+* ignore (table) -- allows to specify a list of values to ignore (as keys)
 * custom (function) -- provide custom output for tables
 
 These options can be provided as a second parameter to Serpent functions.
 
 ```lua
 block(a, {fatal = true})
-line(a, {nocode = true})
+line(a, {nocode = true, ignore = {[arrayToIgnore] = true}})
 function todiff(a) return dump(a, {nocode = true, indent = ' '}) end
 ```
 
