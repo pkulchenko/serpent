@@ -51,7 +51,7 @@ internal function, but set different options by default:
 
 * name (string) -- name; triggers full serialization with self-ref section
 * indent (string) -- indentation; triggers long multi-line output
-* comment (true/False) -- provide stringified value in a comment
+* comment (true/False/maxlevel) -- provide stringified value in a comment (up to maxlevel of depth)
 * sortkeys (true/False) -- sort keys
 * sparse (true/False) -- force sparse encoding (no nil filling based on #t)
 * compact (true/False) -- remove spaces
@@ -128,22 +128,27 @@ See LICENSE file.
 
 ## History
 
+Jun 17 2012 v0.15
+  - Added `ignore` option to allow ignoring table values.
+  - Added `comment=num` option to set the max level up to which add comments.
+  - Changed all comments (except math.huge) to be controlled by `comment` option.
+
 Jun 13 2012 v0.14
   - Fixed an issue with string keys with numeric values `['3']` getting mixed
     with real numeric keys (only with `sortkeys` option set to `true`).
   - Fixed an issue with negative and real value numeric keys being misplaced.
 
 Jun 13 2012 v0.13
-  - Added maxlevel option.
+  - Added `maxlevel` option.
   - Fixed key sorting such that `true` and `'true'` are always sorted in
     the same order (for a more stable output).
   - Removed addresses from names of temporary variables (for stable output).
 
 Jun 12 2012 v0.12
   - Added options to configure serialization process.
-  - Added 'goto' to the list of keywords for Lua 5.2.
+  - Added `goto` to the list of keywords for Lua 5.2.
   - Changed interface to dump/line/block methods.
-  - Changed 'math.huge' to 1/0 for better portability.
+  - Changed `math.huge` to 1/0 for better portability.
   - Replaced \010 with \n for better readability.
 
 Jun 03 2012 v0.10

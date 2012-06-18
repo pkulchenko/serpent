@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.14 -- (C) 2012 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.15 -- (C) 2012 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Serializer and pretty printer of Lua data types"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true}
@@ -14,15 +14,16 @@ local function s(t, opts)
   local name, indent, fatal = opts.name, opts.indent, opts.fatal
   local sparse, custom, huge = opts.sparse, opts.custom, not opts.nohuge
   local space, maxl = (opts.compact and '' or ' '), (opts.maxlevel or math.huge)
+  local comm = opts.comment and (tonumber(opts.comment) or math.huge)
   local seen, sref, syms, symn = {}, {}, {}, 0
   local function gensym(val) return tostring(val):gsub("[^%w]",""):gsub("(%d%w+)",
     function(s) if not syms[s] then symn = symn+1; syms[s] = symn end return syms[s] end) end
   local function safestr(s) return type(s) == "number" and (huge and snum[tostring(s)] or s)
     or type(s) ~= "string" and tostring(s) -- escape NEWLINE/010 and EOF/026
     or ("%q"):format(s):gsub("\010","n"):gsub("\026","\\026") end
-  local function comment(s) return opts.comment and ' --[['..tostring(s)..']]' or '' end
-  local function globerr(s) return globals[s] and globals[s]..comment(s) or not fatal
-    and safestr(tostring(s))..' --[[err]]' or error("Can't serialize "..tostring(s)) end
+  local function comment(s,l) return comm and (l or 0) < comm and ' --[['..tostring(s)..']]' or '' end
+  local function globerr(s,l) return globals[s] and globals[s]..comment(s,l) or not fatal
+    and safestr(tostring(s))..comment('err',l) or error("Can't serialize "..tostring(s)) end
   local function safename(path, name) -- generates foo.bar, foo[3], or foo['b a r']
     local n = name == nil and '' or name
     local plain = type(n) == "string" and n:match("^[%l%u_][%w_]*$") and not keyword[n]
@@ -42,18 +43,18 @@ local function s(t, opts)
       (name ~= nil and sname..space..'='..space or '')
     if seen[t] then
       table.insert(sref, spath..space..'='..space..seen[t])
-      return tag..'nil --[[ref]]'
-    elseif badtype[ttype] then return tag..globerr(t)
+      return tag..'nil'..comment('ref', level)
+    elseif badtype[ttype] then return tag..globerr(t, level)
     elseif ttype == 'function' then
       seen[t] = spath
       local ok, res = pcall(string.dump, t)
-      local func = ok and (opts.nocode and "function()error('dummy')end" or
-        "loadstring("..safestr(res)..",'@serialized')"..comment(t))
-      return tag..(func or globerr(t))
+      local func = ok and ((opts.nocode and "function() end" or
+        "loadstring("..safestr(res)..",'@serialized')")..comment(t, level))
+      return tag..(func or globerr(t, level))
     elseif ttype == "table" then
-      if level >= maxl then return tag..'{}'..comment('max') end
+      if level >= maxl then return tag..'{}'..comment('max', level) end
       seen[t] = spath
-      if next(t) == nil then return tag..'{}'..comment(t) end -- table empty
+      if next(t) == nil then return tag..'{}'..comment(t, level) end -- table empty
       local maxn, o, out = #t, {}, {}
       for key = 1, maxn do table.insert(o, key) end
       for key in pairs(t) do if not o[key] then table.insert(o, key) end end
@@ -68,7 +69,7 @@ local function s(t, opts)
           table.insert(sref, seen[t]..'['..(seen[key] or globals[key] or gensym(key))
             ..']'..space..'='..space..(seen[value] or val2str(value,nil,indent)))
         else
-          if badtype[ktype] then plainindex, key = true, '['..globerr(key)..']' end
+          if badtype[ktype] then plainindex, key = true, '['..globerr(key, level+1)..']' end
           table.insert(out,val2str(value,key,indent,spath,plainindex,level+1))
         end
       end
@@ -76,7 +77,7 @@ local function s(t, opts)
       local head = indent and '{\n'..prefix..indent or '{'
       local body = table.concat(out, ','..(indent and '\n'..prefix..indent or space))
       local tail = indent and "\n"..prefix..'}' or '}'
-      return (custom and custom(tag,head,body,tail) or tag..head..body..tail)..comment(t)
+      return (custom and custom(tag,head,body,tail) or tag..head..body..tail)..comment(t, level)
     else return tag..safestr(t) end -- handle all other types
   end
   local sepr = indent and "\n" or ";"..space

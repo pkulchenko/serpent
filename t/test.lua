@@ -57,8 +57,7 @@ assert(_a.list[4] == 'f', "specific table element preserves its value: failed")
 assert(_a.ignore == nil, "ignored table not serialized: failed")
 
 -- test without sparsness to check the number of elements in the list with nil
-_a = loadstring(serpent.dump(a, {sparse = false, nocode = true}))()
-assert(pcall(function() _a.z() end) == false, "nocode replaces functions with dummy errors: failed")
+_a = loadstring(serpent.dump(a, {sparse = false}))()
 assert(#(_a.list) == #(a.list), "size of array part stays the same: failed")
 
 local diffable = {sortkeys = true, comment = false, nocode = true, indent = ' '}
@@ -69,3 +68,13 @@ assert(serpent.block(a, diffable) == serpent.block(_a, diffable),
 _a = loadstring(serpent.dump(a, {sparse = false, nocode = true, maxlevel = 1}))()
 assert(#(_a.list) == 0, "nested table 1 is empty with maxlevel=1: failed")
 assert(#(_a[true]) == 0, "nested table 2 is empty with maxlevel=1: failed")
+
+-- test comment level
+local dump = serpent.block(a, {comment = 1, nocode = true})
+assert(dump:find(tostring(a)), "first level comment is present with comment=1: failed")
+assert(not dump:find(tostring(a.list)), "second level comment is not present with comment=1: failed")
+assert(dump:find("function%(%) end"), "nocode replaces functions with an empty body: failed")
+
+assert(serpent.line(nil) == 'nil', "nil value serialized as 'nil': failed")
+assert(serpent.line(123) == '123', "numeric value serialized as number: failed")
+assert(serpent.line("123") == '"123"', "string value serialized as string: failed")
