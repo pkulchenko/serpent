@@ -128,6 +128,10 @@ See LICENSE file.
 
 ## History
 
+Aug 28 2012 v0.16
+  - Removed confusing --[[err]] comment from serialized results.
+  - Added a short comment to serialized functions when the body is skipped.
+
 Jun 17 2012 v0.15
   - Added `ignore` option to allow ignoring table values.
   - Added `comment=num` option to set the max level up to which add comments.

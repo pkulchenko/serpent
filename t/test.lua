@@ -73,7 +73,8 @@ assert(#(_a[true]) == 0, "nested table 2 is empty with maxlevel=1: failed")
 local dump = serpent.block(a, {comment = 1, nocode = true})
 assert(dump:find(tostring(a)), "first level comment is present with comment=1: failed")
 assert(not dump:find(tostring(a.list)), "second level comment is not present with comment=1: failed")
-assert(dump:find("function%(%) end"), "nocode replaces functions with an empty body: failed")
+assert(dump:find("function() --[[..skipped..]] end", 1, true),
+  "nocode replaces functions with an empty body: failed")
 
 assert(serpent.line(nil) == 'nil', "nil value serialized as 'nil': failed")
 assert(serpent.line(123) == '123', "numeric value serialized as number: failed")
