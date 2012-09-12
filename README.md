@@ -128,6 +128,9 @@ See LICENSE file.
 
 ## History
 
+Sep 12 2012 v0.17
+  - Fixed an issue with serializing userdata that doesn't provide tostring().
+
 Aug 28 2012 v0.16
   - Removed confusing --[[err]] comment from serialized results.
   - Added a short comment to serialized functions when the body is skipped.
