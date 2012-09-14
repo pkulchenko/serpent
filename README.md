@@ -128,6 +128,11 @@ See LICENSE file.
 
 ## History
 
+Sep 13 2012 v0.18
+  - Fixed an issue with serializing data structures with circular references that require emitting temporary variables.
+  - Fixed an issue with serializing keys pointing to shared references.
+  - Improved overall serialization logic to inline values when possible.
+
 Sep 12 2012 v0.17
   - Fixed an issue with serializing userdata that doesn't provide tostring().
 

@@ -29,6 +29,16 @@ local a = {
 a.c = a -- self-reference
 a[a] = a -- self-reference with table as key
 
+-- this weirdness is needed to force not just shared reference,
+-- but something that generates local variable.
+a[1] = {}
+a[1].more = {[a[1]] = "more"}
+a[1].moreyet = {[{__more = a[1]}] = "moreyet"}
+
+-- this weirdness is needed to use a table as key multiple times.
+a[2] = {}
+a[a[2]] = {more = a[2]}
+
 print("pretty: " .. serpent.block(a, {ignore = {[d] = true}}) .. "\n")
 print("line: " .. serpent.line(a, {ignore = {[d] = true}}) .. "\n")
 local str = serpent.dump(a, {ignore = {[d] = true}})
@@ -57,7 +67,7 @@ assert(_a.list[4] == 'f', "specific table element preserves its value: failed")
 assert(_a.ignore == nil, "ignored table not serialized: failed")
 
 -- test without sparsness to check the number of elements in the list with nil
-_a = loadstring(serpent.dump(a, {sparse = false}))()
+_a = assert(loadstring(serpent.dump(a, {sparse = false})))()
 assert(#(_a.list) == #(a.list), "size of array part stays the same: failed")
 
 local diffable = {sortkeys = true, comment = false, nocode = true, indent = ' '}
@@ -65,7 +75,7 @@ assert(serpent.block(a, diffable) == serpent.block(_a, diffable),
  "block(a) == block(copy_of_a): failed")
 
 -- test maxlevel
-_a = loadstring(serpent.dump(a, {sparse = false, nocode = true, maxlevel = 1}))()
+_a = assert(loadstring(serpent.dump(a, {sparse = false, nocode = true, maxlevel = 1})))()
 assert(#(_a.list) == 0, "nested table 1 is empty with maxlevel=1: failed")
 assert(#(_a[true]) == 0, "nested table 2 is empty with maxlevel=1: failed")
 
@@ -79,3 +89,16 @@ assert(dump:find("function() --[[..skipped..]] end", 1, true),
 assert(serpent.line(nil) == 'nil', "nil value serialized as 'nil': failed")
 assert(serpent.line(123) == '123', "numeric value serialized as number: failed")
 assert(serpent.line("123") == '"123"', "string value serialized as string: failed")
+
+-- test shared references serialized from shared reference section
+do
+  local a = {}
+  local tbl = {'tbl'}
+  a[3] = {[{}] = {happy = tbl}, sad = tbl}
+
+  print(serpent.dump(a, {sparse = false, nocode = true}))
+  assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})),
+    "table as key with circular/shared reference: failed")
+end
+
+print("All tests passed.")
