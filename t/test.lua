@@ -101,4 +101,16 @@ do
     "table as key with circular/shared reference: failed")
 end
 
+-- test shared functions
+do
+  local a={a={}}
+  local function1=function() end
+  a.a[function1]=function() end
+  a.b=a.a[function1]
+
+  print(serpent.dump(a, {sparse = false, nocode = true}))
+  assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})),
+    "functions as shared references while processing shared refs: failed")
+end
+
 print("All tests passed.")

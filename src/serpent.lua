@@ -49,7 +49,7 @@ local function s(t, opts)
       seen[t] = spath
       return tag..globerr(t, level)
     elseif ttype == 'function' then
-      seen[t] = spath
+      seen[t] = insref or spath
       local ok, res = pcall(string.dump, t)
       local func = ok and ((opts.nocode and "function() --[[..skipped..]] end" or
         "loadstring("..safestr(res)..",'@serialized')")..comment(t, level))
