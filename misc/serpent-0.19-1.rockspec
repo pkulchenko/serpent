@@ -1,11 +1,12 @@
 package = "serpent"
-version = "git-1"
+version = "0.19-1"
 source = {
   url = "git://github.com/pkulchenko/serpent.git",
+  tag = "0.19"
 }
 
 description = {
-  summary = "Lua serializer and pretty printer ",
+  summary = "Lua serializer and pretty printer",
   homepage = "https://github.com/pkulchenko/serpent",
   maintainer = "Paul Kulchenko <paul@kulchenko.com>",
   license = "MIT",
