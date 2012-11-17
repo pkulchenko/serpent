@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.18 -- (C) 2012 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.19 -- (C) 2012 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Serializer and pretty printer of Lua data types"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true}
@@ -57,6 +57,8 @@ local function s(t, opts)
     elseif ttype == "table" then
       if level >= maxl then return tag..'{}'..comment('max', level) end
       seen[t] = insref or spath -- set path to use as reference
+      if getmetatable(t) and getmetatable(t).__tostring
+        then return tag..safestr(tostring(t))..comment("meta",l) end
       if next(t) == nil then return tag..'{}'..comment(t, level) end -- table empty
       local maxn, o, out = #t, {}, {}
       for key = 1, maxn do table.insert(o, key) end

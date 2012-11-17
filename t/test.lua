@@ -96,7 +96,6 @@ do
   local tbl = {'tbl'}
   a[3] = {[{}] = {happy = tbl}, sad = tbl}
 
-  print(serpent.dump(a, {sparse = false, nocode = true}))
   assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})),
     "table as key with circular/shared reference: failed")
 end
@@ -108,9 +107,19 @@ do
   a.a[function1]=function() end
   a.b=a.a[function1]
 
-  print(serpent.dump(a, {sparse = false, nocode = true}))
   assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})),
     "functions as shared references while processing shared refs: failed")
+end
+
+-- test serialization of metatable with __tostring
+do
+  local mt = {}
+  mt.__tostring = function(t) return 'table with ' .. #t .. ' entries' end
+  local a = {'a', 'b'}
+  setmetatable(a, mt)
+
+  assert(loadstring(serpent.dump(a, {sparse = false, nocode = true, comment = true})),
+    "metatable with __tostring serialized with a comment: failed")
 end
 
 print("All tests passed.")

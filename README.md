@@ -128,6 +128,10 @@ See LICENSE file.
 
 ## History
 
+Nov 16 2012 v0.19
+  - Fixed an issue with serializing shared functions as keys.
+  - Added serialization of metatables using __tostring (when present).
+
 Sep 13 2012 v0.18
   - Fixed an issue with serializing data structures with circular references that require emitting temporary variables.
   - Fixed an issue with serializing keys pointing to shared references.
