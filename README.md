@@ -61,6 +61,7 @@ internal function, but set different options by default:
 * maxlevel (number) -- specify max level up to which to expand nested tables
 * ignore (table) -- allows to specify a list of values to ignore (as keys)
 * keyallow (table) -- allows to specify the list of keys to be serialized. Any keys not in this list are not included in final output (as keys)
+* valtypeignore (table) -- allows to specify a list of value *types* to ignore (as keys)
 * custom (function) -- provide custom output for tables
 
 These options can be provided as a second parameter to Serpent functions.
