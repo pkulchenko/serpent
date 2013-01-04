@@ -60,7 +60,7 @@ internal function, but set different options by default:
 * nohuge (true/False) -- disable checking numbers against undefined and huge values
 * maxlevel (number) -- specify max level up to which to expand nested tables
 * ignore (table) -- allows to specify a list of values to ignore (as keys)
-* keywhitelist (table) -- allows to specify the list of keys to be serialized. Any keys not in this list are not included in final output (as keys)
+* keyallow (table) -- allows to specify the list of keys to be serialized. Any keys not in this list are not included in final output (as keys)
 * custom (function) -- provide custom output for tables
 
 These options can be provided as a second parameter to Serpent functions.

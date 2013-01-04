@@ -66,11 +66,11 @@ assert(_a.list['3'] == 33, "string that looks like number as index: failed")
 assert(_a.list[4] == 'f', "specific table element preserves its value: failed")
 assert(_a.ignore == nil, "ignored table not serialized: failed")
 
--- test whitelisting keys
-_a = assert(loadstring(serpent.dump(a, {keywhitelist = {["list"] = true, ["x"] = true}})))()
-assert(_a.x == 1, "whitelisting key 'x': failed")
-assert(_a.list ~= nil, "whitelisting key 'list': failed")
-assert(_a[_c] == nil, "not whitelisting key '_c': failed")
+-- test allowing keys
+_a = assert(loadstring(serpent.dump(a, {keyallow = {["list"] = true, ["x"] = true}})))()
+assert(_a.x == 1, "allowing key 'x': failed")
+assert(_a.list ~= nil, "allowing key 'list': failed")
+assert(_a[_c] == nil, "not allowing key '_c': failed")
 
 -- test without sparsness to check the number of elements in the list with nil
 _a = assert(loadstring(serpent.dump(a, {sparse = false})))()

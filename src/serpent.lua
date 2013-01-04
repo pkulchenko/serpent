@@ -67,7 +67,7 @@ local function s(t, opts)
       for n, key in ipairs(o) do
         local value, ktype, plainindex = t[key], type(key), n <= maxn and not sparse
         if opts.ignore and opts.ignore[value] -- skip ignored values; do nothing
-        or opts.keywhitelist and not opts.keywhitelist[key]
+        or opts.keyallow and not opts.keyallow[key]
         or sparse and value == nil then -- skipping nils; do nothing
         elseif ktype == 'table' or ktype == 'function' or badtype[ktype] then
           if not seen[key] and not globals[key] then
