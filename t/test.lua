@@ -72,6 +72,14 @@ assert(_a.x == 1, "allowing key 'x': failed")
 assert(_a.list ~= nil, "allowing key 'list': failed")
 assert(_a[_c] == nil, "not allowing key '_c': failed")
 
+-- test ignore value types
+_a = assert(loadstring(serpent.dump(a, {valtypeignore = {["function"] = true, ["table"] = true}})))()
+assert(_a.z == nil, "ignoring value type 'function': failed")
+assert(_a[c] == nil, "ignoring value type 'function': failed")
+assert(_a.list == nil, "ignoring value type 'table': failed")
+assert(_a['true'] ~= nil, "not ignoring value type 'string': failed")
+assert(_a.x ~= nil, "not ignoring value type 'number': failed")
+
 -- test without sparsness to check the number of elements in the list with nil
 _a = assert(loadstring(serpent.dump(a, {sparse = false})))()
 assert(#(_a.list) == #(a.list), "size of array part stays the same: failed")
