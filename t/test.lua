@@ -39,9 +39,9 @@ a[1].moreyet = {[{__more = a[1]}] = "moreyet"}
 a[2] = {}
 a[a[2]] = {more = a[2]}
 
-print("pretty: " .. serpent.block(a, {ignore = {[d] = true}}) .. "\n")
-print("line: " .. serpent.line(a, {ignore = {[d] = true}}) .. "\n")
-local str = serpent.dump(a, {ignore = {[d] = true}})
+print("pretty: " .. serpent.block(a, {valignore = {[d] = true}}) .. "\n")
+print("line: " .. serpent.line(a, {valignore = {[d] = true}}) .. "\n")
+local str = serpent.dump(a, {valignore = {[d] = true}})
 print("full: " .. str .. "\n")
 
 local fun, err = assert(loadstring(str))

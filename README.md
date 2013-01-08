@@ -59,7 +59,7 @@ internal function, but set different options by default:
 * nocode (true/False) -- disable bytecode serialization for easy comparison
 * nohuge (true/False) -- disable checking numbers against undefined and huge values
 * maxlevel (number) -- specify max level up to which to expand nested tables
-* ignore (table) -- allows to specify a list of values to ignore (as keys)
+* valignore (table) -- allows to specify a list of values to ignore (as keys)
 * keyallow (table) -- allows to specify the list of keys to be serialized. Any keys not in this list are not included in final output (as keys)
 * valtypeignore (table) -- allows to specify a list of value *types* to ignore (as keys)
 * custom (function) -- provide custom output for tables
@@ -68,7 +68,7 @@ These options can be provided as a second parameter to Serpent functions.
 
 ```lua
 block(a, {fatal = true})
-line(a, {nocode = true, ignore = {[arrayToIgnore] = true}})
+line(a, {nocode = true, valignore = {[arrayToIgnore] = true}})
 function todiff(a) return dump(a, {nocode = true, indent = ' '}) end
 ```
 
@@ -130,44 +130,48 @@ See LICENSE file.
 
 ## History
 
-Nov 16 2012 v0.19
+### v0.21 (Jan 08 2013)
+  - Added `keyallow` and `valtypeignore` options (thanks to Jess Telford).
+  - Renamed `ignore` to `valignore`.
+
+### v0.19 (Nov 16 2012)
   - Fixed an issue with serializing shared functions as keys.
   - Added serialization of metatables using __tostring (when present).
 
-Sep 13 2012 v0.18
+### v0.18 (Sep 13 2012)
   - Fixed an issue with serializing data structures with circular references that require emitting temporary variables.
   - Fixed an issue with serializing keys pointing to shared references.
   - Improved overall serialization logic to inline values when possible.
 
-Sep 12 2012 v0.17
+### v0.17 (Sep 12 2012)
   - Fixed an issue with serializing userdata that doesn't provide tostring().
 
-Aug 28 2012 v0.16
+### v0.16 (Aug 28 2012)
   - Removed confusing --[[err]] comment from serialized results.
   - Added a short comment to serialized functions when the body is skipped.
 
-Jun 17 2012 v0.15
+### v0.15 (Jun 17 2012)
   - Added `ignore` option to allow ignoring table values.
   - Added `comment=num` option to set the max level up to which add comments.
   - Changed all comments (except math.huge) to be controlled by `comment` option.
 
-Jun 13 2012 v0.14
+### v0.14 (Jun 13 2012)
   - Fixed an issue with string keys with numeric values `['3']` getting mixed
     with real numeric keys (only with `sortkeys` option set to `true`).
   - Fixed an issue with negative and real value numeric keys being misplaced.
 
-Jun 13 2012 v0.13
+### v0.13 (Jun 13 2012)
   - Added `maxlevel` option.
   - Fixed key sorting such that `true` and `'true'` are always sorted in
     the same order (for a more stable output).
   - Removed addresses from names of temporary variables (for stable output).
 
-Jun 12 2012 v0.12
+### v0.12 (Jun 12 2012)
   - Added options to configure serialization process.
   - Added `goto` to the list of keywords for Lua 5.2.
   - Changed interface to dump/line/block methods.
   - Changed `math.huge` to 1/0 for better portability.
   - Replaced \010 with \n for better readability.
 
-Jun 03 2012 v0.10
+### v0.10 (Jun 03 2012)
   - First public release.

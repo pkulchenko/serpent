@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.20 -- (C) 2012 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.21 -- (C) 2012 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Serializer and pretty printer of Lua data types"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true}
@@ -66,7 +66,7 @@ local function s(t, opts)
       if opts.sortkeys then alphanumsort(o, opts.sortkeys) end
       for n, key in ipairs(o) do
         local value, ktype, plainindex = t[key], type(key), n <= maxn and not sparse
-        if opts.ignore and opts.ignore[value] -- skip ignored values; do nothing
+        if opts.valignore and opts.valignore[value] -- skip ignored values; do nothing
         or opts.keyallow and not opts.keyallow[key]
         or opts.valtypeignore and opts.valtypeignore[type(value)] -- skipping ignored value types
         or sparse and value == nil then -- skipping nils; do nothing
