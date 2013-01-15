@@ -130,6 +130,9 @@ See LICENSE file.
 
 ## History
 
+### v0.22 (Jan 15 2013)
+  - Added ability to process __tostring results that may be non-string values.
+
 ### v0.21 (Jan 08 2013)
   - Added `keyallow` and `valtypeignore` options (thanks to Jess Telford).
   - Renamed `ignore` to `valignore`.

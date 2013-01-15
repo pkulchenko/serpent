@@ -134,6 +134,14 @@ do
 
   assert(loadstring(serpent.dump(a, {sparse = false, nocode = true, comment = true})),
     "metatable with __tostring serialized with a comment: failed")
+
+  local shadow = {x = 11, y = 12}
+  mt.__index = function(t, f) return shadow[f] end
+  mt.__tostring = function(t) return {t[1], x = 1, y=t.y} end
+  local _a = assert(loadstring(serpent.dump(a, {sparse = false, nocode = true, comment = 1})))()
+  assert(_a.y == 12, "metatable with __tostring and __index 1: failed")
+  assert(_a[1] == 'a', "metatable with __tostring and __index 2: failed")
+  assert(_a.x == 1, "metatable with __tostring and __index 3: failed")
 end
 
 print("All tests passed.")
