@@ -78,8 +78,8 @@ A custom sort function can be provided to sort the contents of tables. The funct
 For example, the following call will apply a sort function identical to the standard sort, except that it will not distinguish between lower- and uppercase.
 
 ```lua
-local mysort  = function(k, o, n) -- k=keys, o=original table, n=????
-  local maxn, to = tonumber(n) or 12, {number = 'a', string = 'b'}
+local mysort  = function(k, o) -- k=keys, o=original table
+  local maxn, to = 12, {number = 'a', string = 'b'}
   local function padnum(d) return ("%0"..maxn.."d"):format(d) end
   local sort = function(a,b)
     return ((k[a] and 0 or to[type(a)] or 'z')..(tostring(a):gsub("%d+",padnum))):upper()
