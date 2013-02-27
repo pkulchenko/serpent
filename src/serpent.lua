@@ -30,7 +30,7 @@ local function s(t, opts)
     local safe = plain and n or '['..safestr(n)..']'
     return (path or '')..(plain and path and '.' or '')..safe, safe end
   local alphanumsort = type(opts.sortkeys) == 'function' and opts.sortkeys or function(k, o, n)  -- k=keys, o=originaltable, n=???
-    local maxn, to = tonumber(n) or 12, {number = 'a', string = 'b', table = 'c'}
+    local maxn, to = tonumber(n) or 12, {number = 'a', string = 'b'}
     local function padnum(d) return ("%0"..maxn.."d"):format(d) end
     table.sort(k, function(a,b)
       return (k[a] and 0 or to[type(a)] or 'z')..(tostring(a):gsub("%d+",padnum))
