@@ -78,7 +78,7 @@ A custom sort function can be provided to sort the contents of tables. The funct
 For example, the following call will apply a sort function identical to the standard sort, except that it will not distinguish between lower- and uppercase.
 
 ```lua
-local sortkeys  = function(k, o, n) -- k=keys, o=original table, n=????
+local mysort  = function(k, o, n) -- k=keys, o=original table, n=????
   local maxn, to = tonumber(n) or 12, {number = 'a', string = 'b'}
   local function padnum(d) return ("%0"..maxn.."d"):format(d) end
   local sort = function(a,b)
@@ -87,6 +87,9 @@ local sortkeys  = function(k, o, n) -- k=keys, o=original table, n=????
   end  
   table.sort(k, sort)
 end
+
+local content = { some = 1, input = 2, to = 3, serialize = 4 }
+local result = require('serpent').block(content, {sortkeys = mysort})
 ```
 
 ## Formatters
