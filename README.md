@@ -51,13 +51,13 @@ internal function, but set different options by default:
 
 * name (string) -- name; triggers full serialization with self-ref section
 * indent (string) -- indentation; triggers long multi-line output
-* comment (true/False/maxlevel) -- provide stringified value in a comment (up to maxlevel of depth)
-* sortkeys (true/False) -- sort keys
-* sparse (true/False) -- force sparse encoding (no nil filling based on #t)
-* compact (true/False) -- remove spaces
-* fatal (true/False) -- raise fatal error on non-serilizable values
-* nocode (true/False) -- disable bytecode serialization for easy comparison
-* nohuge (true/False) -- disable checking numbers against undefined and huge values
+* comment (true/false/maxlevel) -- provide stringified value in a comment (up to maxlevel of depth)
+* sortkeys (true/false/function) -- sort keys
+* sparse (true/false) -- force sparse encoding (no nil filling based on #t)
+* compact (true/false) -- remove spaces
+* fatal (true/false) -- raise fatal error on non-serilizable values
+* nocode (true/false) -- disable bytecode serialization for easy comparison
+* nohuge (true/false) -- disable checking numbers against undefined and huge values
 * maxlevel (number) -- specify max level up to which to expand nested tables
 * valignore (table) -- allows to specify a list of values to ignore (as keys)
 * keyallow (table) -- allows to specify the list of keys to be serialized. Any keys not in this list are not included in final output (as keys)
@@ -70,6 +70,26 @@ These options can be provided as a second parameter to Serpent functions.
 block(a, {fatal = true})
 line(a, {nocode = true, valignore = {[arrayToIgnore] = true}})
 function todiff(a) return dump(a, {nocode = true, indent = ' '}) end
+```
+
+## Sorting
+
+A custom sort function can be provided to sort the contents of tables. The function takes 2 parameters, the first being the table (a list) with the keys, the second the original table. It should modify the first table in-place, and return nothing.
+For example, the following call will apply a sort function identical to the standard sort, except that it will not distinguish between lower- and uppercase.
+
+```lua
+local mysort  = function(k, o) -- k=keys, o=original table
+  local maxn, to = 12, {number = 'a', string = 'b'}
+  local function padnum(d) return ("%0"..maxn.."d"):format(d) end
+  local sort = function(a,b)
+    return ((k[a] and 0 or to[type(a)] or 'z')..(tostring(a):gsub("%d+",padnum))):upper()
+         < ((k[b] and 0 or to[type(b)] or 'z')..(tostring(b):gsub("%d+",padnum))):upper()
+  end  
+  table.sort(k, sort)
+end
+
+local content = { some = 1, input = 2, to = 3, serialize = 4 }
+local result = require('serpent').block(content, {sortkeys = mysort})
 ```
 
 ## Formatters
