@@ -82,13 +82,14 @@ local mysort  = function(k, o) -- k=keys, o=original table
   local maxn, to = 12, {number = 'a', string = 'b'}
   local function padnum(d) return ("%0"..maxn.."d"):format(d) end
   local sort = function(a,b)
+    -- this -vvvvvvvvvv- is needed to sort array keys first
     return ((k[a] and 0 or to[type(a)] or 'z')..(tostring(a):gsub("%d+",padnum))):upper()
          < ((k[b] and 0 or to[type(b)] or 'z')..(tostring(b):gsub("%d+",padnum))):upper()
-  end  
+  end
   table.sort(k, sort)
 end
 
-local content = { some = 1, input = 2, to = 3, serialize = 4 }
+local content = { some = 1, input = 2, To = 3, serialize = 4 }
 local result = require('serpent').block(content, {sortkeys = mysort})
 ```
 

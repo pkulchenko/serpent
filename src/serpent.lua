@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.22 -- (C) 2012 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.221 -- (C) 2012 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Serializer and pretty printer of Lua data types"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true}
@@ -33,6 +33,7 @@ local function s(t, opts)
     local maxn, to = tonumber(n) or 12, {number = 'a', string = 'b'}
     local function padnum(d) return ("%0"..maxn.."d"):format(d) end
     table.sort(k, function(a,b)
+      -- sort numeric keys first: k[key] is non-nil for numeric keys
       return (k[a] and 0 or to[type(a)] or 'z')..(tostring(a):gsub("%d+",padnum))
            < (k[b] and 0 or to[type(b)] or 'z')..(tostring(b):gsub("%d+",padnum)) end) end
   local function val2str(t, name, indent, insref, path, plainindex, level)
@@ -41,8 +42,7 @@ local function s(t, opts)
     local tag = plainindex and
       ((type(name) == "number") and '' or name..space..'='..space) or
       (name ~= nil and sname..space..'='..space or '')
-    if seen[t] then -- if already seen and in sref processing,
-      if insref then return tag..seen[t] end -- then emit right away
+    if seen[t] then
       table.insert(sref, spath..space..'='..space..seen[t])
       return tag..'nil'..comment('ref', level)
     elseif badtype[ttype] then

@@ -116,10 +116,10 @@ end
 
 -- test shared functions
 do
-  local a={a={}}
-  local function1=function() end
-  a.a[function1]=function() end
-  a.b=a.a[function1]
+  local a = {a={}}
+  local function1 = function() end
+  a.a[function1] = function() end
+  a.b = a.a[function1]
 
   assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})),
     "functions as shared references while processing shared refs: failed")
@@ -142,6 +142,19 @@ do
   assert(_a.y == 12, "metatable with __tostring and __index 1: failed")
   assert(_a[1] == 'a', "metatable with __tostring and __index 2: failed")
   assert(_a.x == 1, "metatable with __tostring and __index 3: failed")
+end
+
+-- test circular reference in self-reference section
+do
+  local a = {}
+  local table1 = {}
+  a[table1]={}
+  a[table1].rec1=a[table1]
+
+  local _a = assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})))()
+  local t1 = next(_a)
+  assert(_a[t1].rec1, "circular reference in self-reference section 1: failed")
+  assert(_a[t1].rec1 == _a[t1], "circular reference in self-reference section 2: failed")
 end
 
 print("All tests passed.")
