@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.221 -- (C) 2012 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.222 -- (C) 2012-13 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Serializer and pretty printer of Lua data types"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true}
@@ -14,9 +14,9 @@ local function s(t, opts)
   local name, indent, fatal = opts.name, opts.indent, opts.fatal
   local sparse, custom, huge = opts.sparse, opts.custom, not opts.nohuge
   local space, maxl = (opts.compact and '' or ' '), (opts.maxlevel or math.huge)
-  local comm = opts.comment and (tonumber(opts.comment) or math.huge)
-  local seen, sref, syms, symn = {}, {}, {}, 0
-  local function gensym(val) return (tostring(val):gsub("[^%w]",""):gsub("(%d%w+)",
+  local iname, comm = '_'..(name or ''), opts.comment and (tonumber(opts.comment) or math.huge)
+  local seen, sref, syms, symn = {}, {'local '..iname..'={}'}, {}, 0
+  local function gensym(val) return '_'..(tostring(val):gsub("[^%w]",""):gsub("(%d%w+)",
     function(s) if not syms[s] then symn = symn+1; syms[s] = symn end return syms[s] end)) end
   local function safestr(s) return type(s) == "number" and (huge and snum[tostring(s)] or s)
     or type(s) ~= "string" and tostring(s) -- escape NEWLINE/010 and EOF/026
@@ -46,7 +46,7 @@ local function s(t, opts)
       table.insert(sref, spath..space..'='..space..seen[t])
       return tag..'nil'..comment('ref', level)
     elseif badtype[ttype] then
-      seen[t] = spath
+      seen[t] = insref or spath
       return tag..globerr(t, level)
     elseif ttype == 'function' then
       seen[t] = insref or spath
@@ -73,7 +73,8 @@ local function s(t, opts)
         elseif ktype == 'table' or ktype == 'function' or badtype[ktype] then
           if not seen[key] and not globals[key] then
             table.insert(sref, 'placeholder')
-            sref[#sref] = 'local '..val2str(key,gensym(key),indent,gensym(key)) end
+            local sname = safename(iname, gensym(key)) -- iname is table for local variables
+            sref[#sref] = val2str(key,sname,indent,sname,iname,true) end
           table.insert(sref, 'placeholder')
           local path = seen[t]..'['..(seen[key] or globals[key] or gensym(key))..']'
           sref[#sref] = path..space..'='..space..(seen[value] or val2str(value,nil,indent,path))
@@ -90,7 +91,7 @@ local function s(t, opts)
   end
   local sepr = indent and "\n" or ";"..space
   local body = val2str(t, name, indent) -- this call also populates sref
-  local tail = #sref>0 and table.concat(sref, sepr)..sepr or ''
+  local tail = #sref>1 and table.concat(sref, sepr)..sepr or ''
   return not name and body or "do local "..body..sepr..tail.."return "..name..sepr.."end"
 end
 

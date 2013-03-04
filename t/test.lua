@@ -157,4 +157,14 @@ do
   assert(_a[t1].rec1 == _a[t1], "circular reference in self-reference section 2: failed")
 end
 
+-- test userdata with __tostring method that returns type starting with digits
+do
+  local userdata = newproxy(true)
+  getmetatable(userdata).__tostring = function() return "1234 <Userdata>" end
+  local a = {hi = "there", [{}] = 123, [userdata] = 23}
+
+  assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})),
+    "userdata with type starting with digits: failed")
+end
+
 print("All tests passed.")
