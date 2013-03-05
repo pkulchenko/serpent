@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.223 -- (C) 2012-13 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.224 -- (C) 2012-13 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true}
@@ -46,9 +46,10 @@ local function s(t, opts)
     if seen[t] then -- already seen this element
       table.insert(sref, spath..space..'='..space..seen[t])
       return tag..'nil'..comment('ref', level) end
-    if mt and mt.__tostring then -- metatable with tostring, so substitute it
+    if mt and (mt.__serialize or mt.__tostring) then -- knows how to serialize itself
       seen[t] = insref or spath
-      t = tostring(t); ttype = type(t) end
+      if mt.__serialize then t = mt.__serialize(t) else t = tostring(t) end
+      ttype = type(t) end -- new value falls through to be serialized
     if ttype == "table" then
       if level >= maxl then return tag..'{}'..comment('max', level) end
       seen[t] = insref or spath

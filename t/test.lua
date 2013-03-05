@@ -193,6 +193,24 @@ do
   local _a = f()
   assert(_a.ud, "userdata with __tostring that returns userdata 2: failed")
   assert(_a[_a.ud] == 23, "userdata with __tostring that returns userdata 3: failed")
+  assert(_a.ud.ud == _a.ud.ud.ud, "userdata with __tostring that returns userdata 4: failed")
+end
+
+-- test userdata with __serialize method that includes another userdata
+do
+  local userdata1 = newproxy(true)
+  local userdata2 = newproxy(true)
+  getmetatable(userdata1).__serialize = function() return {1,2,ud = userdata2} end
+  getmetatable(userdata2).__serialize = function() return {3,4,ud = userdata2} end
+  local a = {hi = "there", [{}] = 123, [userdata1] = 23, ud = userdata1}
+
+  local f = assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})),
+    "userdata with __serialize that returns userdata 1: failed")
+  local _a = f()
+  assert(_a.ud, "userdata with __serialize that returns userdata 2: failed")
+  assert(_a[_a.ud] == 23, "userdata with __serialize that returns userdata 3: failed")
+  assert(_a[_a.ud] == 23, "userdata with __serialize that returns userdata 3: failed")
+  assert(_a.ud.ud == _a.ud.ud.ud, "userdata with __serialize that returns userdata 4: failed")
 end
 
 print("All tests passed.")

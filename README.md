@@ -16,9 +16,10 @@ Lua serializer and pretty printer.
 * Machine readable: provides reliable deserialization using `loadstring()`.
 * Supports deeply nested tables.
 * Supports tables with self-references.
-* Shared tables and functions stay shared after de/serialization.
+* Keeps shared tables and functions shared after de/serialization.
 * Supports function serialization using `string.dump()`.
 * Supports serialization of global functions.
+* Supports `__tostring` and `__serialize` metamethods.
 * Escapes new-line `\010` and end-of-file control `\026` characters in strings.
 * Configurable with options and custom formatters.
 
@@ -71,6 +72,13 @@ block(a, {fatal = true})
 line(a, {nocode = true, valignore = {[arrayToIgnore] = true}})
 function todiff(a) return dump(a, {nocode = true, indent = ' '}) end
 ```
+
+## Metatables with __tostring and __serialize methods
+
+If a table or a userdata value has `__tostring` or `__serialize` method, the method will be used to serialize the value.
+If `__serialize` method is present, it will be called with the value as a parameter.
+if `__serialize` method is not present, but `__tostring` is, then `tostring` will be called with the value as a parameter.
+In both cases, the result will be serialized, so `__serialize` method can return a table, that will be serialize and replace the original value.
 
 ## Sorting
 
