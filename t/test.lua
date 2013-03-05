@@ -167,4 +167,32 @@ do
     "userdata with type starting with digits: failed")
 end
 
+-- test userdata with __tostring method that returns a table
+do
+  local userdata = newproxy(true)
+  getmetatable(userdata).__tostring = function() return {3,4,5} end
+  local a = {hi = "there", [{}] = 123, [userdata] = 23, ud = userdata}
+
+  local f = assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})),
+    "userdata with __tostring that returns a table 1: failed")
+  local _a = f()
+  assert(_a.ud, "userdata with __tostring that returns a table 2: failed")
+  assert(_a[_a.ud] == 23, "userdata with __tostring that returns a table 3: failed")
+end
+
+-- test userdata with __tostring method that includes another userdata
+do
+  local userdata1 = newproxy(true)
+  local userdata2 = newproxy(true)
+  getmetatable(userdata1).__tostring = function() return {1,2,ud = userdata2} end
+  getmetatable(userdata2).__tostring = function() return {3,4,ud = userdata2} end
+  local a = {hi = "there", [{}] = 123, [userdata1] = 23, ud = userdata1}
+
+  local f = assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})),
+    "userdata with __tostring that returns userdata 1: failed")
+  local _a = f()
+  assert(_a.ud, "userdata with __tostring that returns userdata 2: failed")
+  assert(_a[_a.ud] == 23, "userdata with __tostring that returns userdata 3: failed")
+end
+
 print("All tests passed.")

@@ -1,5 +1,5 @@
-local n, v = "serpent", 0.222 -- (C) 2012-13 Paul Kulchenko; MIT License
-local c, d = "Paul Kulchenko", "Serializer and pretty printer of Lua data types"
+local n, v = "serpent", 0.223 -- (C) 2012-13 Paul Kulchenko; MIT License
+local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true}
 local keyword, globals, G = {}, {}, (_G or _ENV)
@@ -16,7 +16,8 @@ local function s(t, opts)
   local space, maxl = (opts.compact and '' or ' '), (opts.maxlevel or math.huge)
   local iname, comm = '_'..(name or ''), opts.comment and (tonumber(opts.comment) or math.huge)
   local seen, sref, syms, symn = {}, {'local '..iname..'={}'}, {}, 0
-  local function gensym(val) return '_'..(tostring(val):gsub("[^%w]",""):gsub("(%d%w+)",
+  local function gensym(val) return '_'..(tostring(tostring(val)):gsub("[^%w]",""):gsub("(%d%w+)",
+    -- tostring(val) is needed because __tostring may return a non-string value
     function(s) if not syms[s] then symn = symn+1; syms[s] = symn end return syms[s] end)) end
   local function safestr(s) return type(s) == "number" and (huge and snum[tostring(s)] or s)
     or type(s) ~= "string" and tostring(s) -- escape NEWLINE/010 and EOF/026
@@ -37,28 +38,20 @@ local function s(t, opts)
       return (k[a] and 0 or to[type(a)] or 'z')..(tostring(a):gsub("%d+",padnum))
            < (k[b] and 0 or to[type(b)] or 'z')..(tostring(b):gsub("%d+",padnum)) end) end
   local function val2str(t, name, indent, insref, path, plainindex, level)
-    local ttype, level = type(t), (level or 0)
+    local ttype, level, mt = type(t), (level or 0), getmetatable(t)
     local spath, sname = safename(path, name)
     local tag = plainindex and
       ((type(name) == "number") and '' or name..space..'='..space) or
       (name ~= nil and sname..space..'='..space or '')
-    if seen[t] then
+    if seen[t] then -- already seen this element
       table.insert(sref, spath..space..'='..space..seen[t])
-      return tag..'nil'..comment('ref', level)
-    elseif badtype[ttype] then
+      return tag..'nil'..comment('ref', level) end
+    if mt and mt.__tostring then -- metatable with tostring, so substitute it
       seen[t] = insref or spath
-      return tag..globerr(t, level)
-    elseif ttype == 'function' then
-      seen[t] = insref or spath
-      local ok, res = pcall(string.dump, t)
-      local func = ok and ((opts.nocode and "function() --[[..skipped..]] end" or
-        "loadstring("..safestr(res)..",'@serialized')")..comment(t, level))
-      return tag..(func or globerr(t, level))
-    elseif ttype == "table" then
+      t = tostring(t); ttype = type(t) end
+    if ttype == "table" then
       if level >= maxl then return tag..'{}'..comment('max', level) end
-      seen[t] = insref or spath -- set path to use as reference
-      if getmetatable(t) and getmetatable(t).__tostring
-        then return tag..val2str(tostring(t),nil,indent,false,nil,nil,level+1)..comment("meta", level) end
+      seen[t] = insref or spath
       if next(t) == nil then return tag..'{}'..comment(t, level) end -- table empty
       local maxn, o, out = #t, {}, {}
       for key = 1, maxn do table.insert(o, key) end
@@ -87,6 +80,15 @@ local function s(t, opts)
       local body = table.concat(out, ','..(indent and '\n'..prefix..indent or space))
       local tail = indent and "\n"..prefix..'}' or '}'
       return (custom and custom(tag,head,body,tail) or tag..head..body..tail)..comment(t, level)
+    elseif badtype[ttype] then
+      seen[t] = insref or spath
+      return tag..globerr(t, level)
+    elseif ttype == 'function' then
+      seen[t] = insref or spath
+      local ok, res = pcall(string.dump, t)
+      local func = ok and ((opts.nocode and "function() --[[..skipped..]] end" or
+        "loadstring("..safestr(res)..",'@serialized')")..comment(t, level))
+      return tag..(func or globerr(t, level))
     else return tag..safestr(t) end -- handle all other types
   end
   local sepr = indent and "\n" or ";"..space
