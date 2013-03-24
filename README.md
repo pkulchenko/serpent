@@ -159,6 +159,15 @@ See LICENSE file.
 
 ## History
 
+### v0.23 (Mar 24 2013)
+  - Added support for `cdata` type in LuaJIT (thanks to [Evan](https://github.com/neomantra)).
+  - Added comment to indicate incomplete output.
+  - Added support for metatables with __serialize method.
+  - Added handling of metatables with __tostring method.
+  - Fixed an issue with having too many locals in self-reference section.
+  - Fixed emitting premature circular reference in self-reference section, which caused invalid serialization.
+  - Modified the sort function signature to also pass the original table, so not only keys are available when sorting, but also the values in the original table.
+
 ### v0.22 (Jan 15 2013)
   - Added ability to process __tostring results that may be non-string values.
 
