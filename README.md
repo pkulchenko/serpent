@@ -159,6 +159,10 @@ See LICENSE file.
 
 ## History
 
+### v0.24 (Jun 12 2013)
+  - Fixed an issue with missing numerical keys (fixes #8).
+  - Fixed an issue with luaffi that returns `getmetatable(ffi.C)` as `true`.
+
 ### v0.23 (Mar 24 2013)
   - Added support for `cdata` type in LuaJIT (thanks to [Evan](https://github.com/neomantra)).
   - Added comment to indicate incomplete output.
