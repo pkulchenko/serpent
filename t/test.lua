@@ -213,4 +213,15 @@ do
   assert(_a.ud.ud == _a.ud.ud.ud, "userdata with __serialize that returns userdata 4: failed")
 end
 
+-- test that numerical keys are all present in the serialized table
+do
+  local a = {[4]=1,[5]=1,[6]=1,[7]=1,[8]=1,[9]=1,[10]=1}
+  local f = assert(loadstring(serpent.dump(a)),
+    "serializing table with numerical keys: failed")
+  local _a = f()
+  for k,v in pairs(a) do
+    assert(_a[k] == v, "numerical keys are all present: failed")
+  end
+end
+
 print("All tests passed.")
