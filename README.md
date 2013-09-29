@@ -60,6 +60,7 @@ internal function, but set different options by default:
 * nocode (true/false) -- disable bytecode serialization for easy comparison
 * nohuge (true/false) -- disable checking numbers against undefined and huge values
 * maxlevel (number) -- specify max level up to which to expand nested tables
+* maxnum (number) -- specify max number of elements in a table
 * valignore (table) -- allows to specify a list of values to ignore (as keys)
 * keyallow (table) -- allows to specify the list of keys to be serialized. Any keys not in this list are not included in final output (as keys)
 * valtypeignore (table) -- allows to specify a list of value *types* to ignore (as keys)
@@ -158,6 +159,9 @@ Paul Kulchenko (paul@kulchenko.com)
 See LICENSE file.
 
 ## History
+
+### v0.25 (Sep 29 2013)
+  - Added `maxnum` option to limit the number of elements in tables.
 
 ### v0.24 (Jun 12 2013)
   - Fixed an issue with missing numerical keys (fixes #8).

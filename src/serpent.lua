@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.24 -- (C) 2012-13 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.25 -- (C) 2012-13 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true, cdata = true}
@@ -58,6 +58,7 @@ local function s(t, opts)
       for key = 1, maxn do table.insert(o, key) end
       for key in pairs(t) do if not o[key] or key > maxn then table.insert(o, key) end end
       if opts.sortkeys then alphanumsort(o, t, opts.sortkeys) end
+      if opts.maxnum and #o > opts.maxnum then o[opts.maxnum+1] = nil end
       for n, key in ipairs(o) do
         local value, ktype, plainindex = t[key], type(key), n <= maxn and not sparse
         if opts.valignore and opts.valignore[value] -- skip ignored values; do nothing

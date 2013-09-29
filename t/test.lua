@@ -224,4 +224,15 @@ do
   end
 end
 
+-- test maxnum limit
+do
+  local a = {a = {7,6,5,4,3,2,1}, b = {1,2}}
+  local f = assert(loadstring(serpent.dump(a, {maxnum = 3})),
+    "serializing table with numerical keys: failed")
+  local _a = f()
+  assert(#_a.a == 3, "table with maxnum=3 has no more than 3 elements 1/3: failed")
+  assert(_a.a[3] == 5, "table with maxnum=3 has no more than 3 elements 2/3: failed")
+  assert(#_a.b == 2, "table with maxnum=3 has no more than 3 elements 3/3: failed")
+end
+
 print("All tests passed.")
