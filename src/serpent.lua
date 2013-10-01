@@ -44,7 +44,7 @@ local function s(t, opts)
       ((type(name) == "number") and '' or name..space..'='..space) or
       (name ~= nil and sname..space..'='..space or '')
     if seen[t] then -- already seen this element
-      table.insert(sref, spath..space..'='..space..seen[t])
+      sref[#sref+1] = spath..space..'='..space..seen[t]
       return tag..'nil'..comment('ref', level) end
     if type(mt) == 'table' and (mt.__serialize or mt.__tostring) then -- knows how to serialize itself
       seen[t] = insref or spath
@@ -54,10 +54,10 @@ local function s(t, opts)
       if level >= maxl then return tag..'{}'..comment('max', level) end
       seen[t] = insref or spath
       if next(t) == nil then return tag..'{}'..comment(t, level) end -- table empty
-      local maxn, o, out = #t, {}, {}
-      for key = 1, maxn do table.insert(o, key) end
-      for key in pairs(t) do if not o[key] or key > maxn then table.insert(o, key) end end
-      if opts.sortkeys then alphanumsort(o, t, opts.sortkeys) end
+      local maxn, o, out, maxt = math.min(#t, opts.maxnum or #t), {}, {}, #t > 0 and #t or nil
+      for key = 1, maxn do o[key] = key end
+      for key in next, t, maxt do if not o[key] or key > maxn then o[#o+1] = key end end
+      if opts.sortkeys and next(t, maxt) ~= nil then alphanumsort(o, t, opts.sortkeys) end
       if opts.maxnum and #o > opts.maxnum then o[opts.maxnum+1] = nil end
       for n, key in ipairs(o) do
         local value, ktype, plainindex = t[key], type(key), n <= maxn and not sparse
@@ -67,14 +67,14 @@ local function s(t, opts)
         or sparse and value == nil then -- skipping nils; do nothing
         elseif ktype == 'table' or ktype == 'function' or badtype[ktype] then
           if not seen[key] and not globals[key] then
-            table.insert(sref, 'placeholder')
+            sref[#sref+1] = 'placeholder'
             local sname = safename(iname, gensym(key)) -- iname is table for local variables
             sref[#sref] = val2str(key,sname,indent,sname,iname,true) end
-          table.insert(sref, 'placeholder')
+          sref[#sref+1] = 'placeholder'
           local path = seen[t]..'['..(seen[key] or globals[key] or gensym(key))..']'
           sref[#sref] = path..space..'='..space..(seen[value] or val2str(value,nil,indent,path))
         else
-          table.insert(out,val2str(value,key,indent,insref,seen[t],plainindex,level+1))
+          out[#out+1] = val2str(value,key,indent,insref,seen[t],plainindex,level+1)
         end
       end
       local prefix = string.rep(indent or '', level)

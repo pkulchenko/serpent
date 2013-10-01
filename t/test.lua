@@ -158,7 +158,7 @@ do
 end
 
 -- test userdata with __tostring method that returns type starting with digits
-do
+if _VERSION == 'Lua 5.1' then
   local userdata = newproxy(true)
   getmetatable(userdata).__tostring = function() return "1234 <Userdata>" end
   local a = {hi = "there", [{}] = 123, [userdata] = 23}
@@ -168,7 +168,7 @@ do
 end
 
 -- test userdata with __tostring method that returns a table
-do
+if _VERSION == 'Lua 5.1' then
   local userdata = newproxy(true)
   getmetatable(userdata).__tostring = function() return {3,4,5} end
   local a = {hi = "there", [{}] = 123, [userdata] = 23, ud = userdata}
@@ -181,7 +181,7 @@ do
 end
 
 -- test userdata with __tostring method that includes another userdata
-do
+if _VERSION == 'Lua 5.1' then
   local userdata1 = newproxy(true)
   local userdata2 = newproxy(true)
   getmetatable(userdata1).__tostring = function() return {1,2,ud = userdata2} end
@@ -197,7 +197,7 @@ do
 end
 
 -- test userdata with __serialize method that includes another userdata
-do
+if _VERSION == 'Lua 5.1' then
   local userdata1 = newproxy(true)
   local userdata2 = newproxy(true)
   getmetatable(userdata1).__serialize = function() return {1,2,ud = userdata2} end

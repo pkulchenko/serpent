@@ -162,6 +162,7 @@ See LICENSE file.
 
 ### v0.25 (Sep 29 2013)
   - Added `maxnum` option to limit the number of elements in tables.
+  - Optimized processing of tables with numeric indexes.
 
 ### v0.24 (Jun 12 2013)
   - Fixed an issue with missing numerical keys (fixes #8).
