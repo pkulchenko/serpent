@@ -235,4 +235,48 @@ do
   assert(#_a.b == 2, "table with maxnum=3 has no more than 3 elements 3/3: failed")
 end
 
+-- test serialization of mixed tables
+do
+  local a = {a='a', b='b', c='c', [3]=3, [2]=2,[1]=1}
+  local diffable = {sortkeys = true, comment = false, nocode = true, indent = ' '}
+  local _a = assert(loadstring(serpent.dump(a, diffable)))()
+
+  for k,v in pairs(a) do
+    assert(v == _a[k],
+      ("mixed table with sorted keys (key = '%s'): failed"):format(k))
+  end
+end
+
+-- test sorting is not called on numeric-only tables
+do
+  local a = {1,2,3,4,5}
+  local called = false
+  local sortfunc = function() called = true end
+
+  serpent.dump(a, {sortkeys = sortfunc, sparse = false})
+  assert(called == false, "sorting is not called on numeric-only tables: failed")
+
+  called = false
+  serpent.dump(a, {sortkeys = sortfunc, sparse = false, maxnum = 3})
+  assert(called == false, "sorting is not called on numeric-only tables with maxnum: failed")
+end
+
+-- test serializing large numeric-only tables
+do
+  local a, str = {}
+  for i = 1, 100000 do a[i] = i end
+
+  local start = os.clock()
+  str = serpent.dump(a)
+  print("dump: "..(os.clock() - start), #str)
+
+  start = os.clock()
+  str = serpent.dump(a, {maxnum = 400})
+  print("dump/maxnum: "..(os.clock() - start), #str)
+
+  start = os.clock()
+  str = serpent.dump(a, {sparse = false})
+  print("dump/sparse=false: "..(os.clock() - start), #str)
+end
+
 print("All tests passed.")
