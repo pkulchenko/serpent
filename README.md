@@ -44,27 +44,34 @@ local copy = fun()
 Serpent provides three functions that are shortcuts to the same
 internal function, but set different options by default:
 
-* `dump(a[, {...}])` -- full serialization; sets `name`, `compact` and `sparse` options
-* `line(a[, {...}])` -- single line, no self-ref section; sets `sortkeys` and `comment` options
-* `block(a[, {...}])` -- multi-line indented, no self-ref section; sets `indent`, `sortkeys`, and `comment` options
+* `dump(a[, {...}])` -- full serialization; sets `name`, `compact` and `sparse` options;
+* `line(a[, {...}])` -- single line pretty printing, no self-ref section; sets `sortkeys` and `comment` options;
+* `block(a[, {...}])` -- multi-line indented pretty printing, no self-ref section; sets `indent`, `sortkeys`, and `comment` options.
+
+Note that `line` and `block` functions return pretty-printed data structures and if you want to deserialize them, you need to add `return` before running them through `loadstring`.
+For example: `loadstring('return '..require('mobdebug').line("foo"))() == "foo"`.
 
 ## Options
 
-* name (string) -- name; triggers full serialization with self-ref section
 * indent (string) -- indentation; triggers long multi-line output
-* comment (true/false/maxlevel) -- provide stringified value in a comment (up to maxlevel of depth)
+* comment (true/false/maxlevel) -- provide stringified value in a comment (up to `maxlevel` of depth)
 * sortkeys (true/false/function) -- sort keys
-* sparse (true/false) -- force sparse encoding (no nil filling based on #t)
+* sparse (true/false) -- force sparse encoding (no nil filling based on `#t`)
 * compact (true/false) -- remove spaces
-* fatal (true/false) -- raise fatal error on non-serilizable values
-* nocode (true/false) -- disable bytecode serialization for easy comparison
-* nohuge (true/false) -- disable checking numbers against undefined and huge values
+* fatal (true/False) -- raise fatal error on non-serilizable values
+* nocode (true/False) -- disable bytecode serialization for easy comparison
+* nohuge (true/False) -- disable checking numbers against undefined and huge values
 * maxlevel (number) -- specify max level up to which to expand nested tables
 * maxnum (number) -- specify max number of elements in a table
 * valignore (table) -- allows to specify a list of values to ignore (as keys)
 * keyallow (table) -- allows to specify the list of keys to be serialized. Any keys not in this list are not included in final output (as keys)
 * valtypeignore (table) -- allows to specify a list of value *types* to ignore (as keys)
 * custom (function) -- provide custom output for tables
+* name (string) -- name; triggers full serialization with self-ref section
+
+* `dump` sets `compact` and `sparse` to `true`;
+* `line` sets `sortkeys` and `comment` to `true`;
+* `block` sets `sortkeys` and `comment` to `true` and `indent` to `'  '`.
 
 These options can be provided as a second parameter to Serpent functions.
 
