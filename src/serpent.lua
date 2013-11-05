@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.25 -- (C) 2012-13 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.26 -- (C) 2012-13 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true, cdata = true}
@@ -103,8 +103,26 @@ local function s(t, opts)
   return not name and body..warn or "do local "..body..sepr..tail.."return "..name..sepr.."end"
 end
 
+local function deserialize(data, opts)
+  local f, res = (loadstring or load)('return '..data)
+  if not f then f, res = (loadstring or load)(data) end
+  if not f then return f, res end
+  if opts and opts.safe == false then return pcall(f) end
+
+  local count, thread = 0, coroutine.running()
+  local h, m, c = debug.gethook(thread)
+  debug.sethook(function (e, l) count = count + 1
+    if count >= 3 then error("cannot call functions") end
+  end, "c")
+  local res = {pcall(f)}
+  count = 0 -- set again, otherwise it's tripped on the next sethook
+  debug.sethook(thread, h, m, c)
+  return (table.unpack or unpack)(res)
+end
+
 local function merge(a, b) if b then for k,v in pairs(b) do a[k] = v end end; return a; end
 return { _NAME = n, _COPYRIGHT = c, _DESCRIPTION = d, _VERSION = v, serialize = s,
+  load = deserialize,
   dump = function(a, opts) return s(a, merge({name = '_', compact = true, sparse = true}, opts)) end,
   line = function(a, opts) return s(a, merge({sortkeys = true, comment = true}, opts)) end,
   block = function(a, opts) return s(a, merge({indent = '  ', sortkeys = true, comment = true}, opts)) end }

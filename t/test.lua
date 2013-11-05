@@ -261,8 +261,35 @@ do
   assert(called == false, "sorting is not called on numeric-only tables with maxnum: failed")
 end
 
--- test serializing large numeric-only tables
 do
+  local ok, res = serpent.load(serpent.line(10))
+  assert(ok and res == 10, "deserialization of simple number values: failed")
+
+  local ok, res = serpent.load(serpent.line(true))
+  assert(ok and res == true, "deserialization of simple boolean values: failed")
+
+  local ok, res = serpent.load(serpent.line({3,4}))
+  assert(ok and #res == 2 and res[1] == 3 and res[2] == 4,
+    "deserialization of pretty-printed tables: failed")
+
+  local ok, res = serpent.load(serpent.dump({3,4}))
+  assert(ok and #res == 2 and res[1] == 3 and res[2] == 4,
+    "deserialization of serialized tables: failed")
+
+  local ok, res = serpent.load('{a = math.random()}')
+  assert(not ok and res:find("cannot call functions"),
+    "deserialization of unsafe values: failed")
+
+  local ok, res = serpent.load('{a = math.random()}', {safe = false})
+  assert(ok and res and res.a > 0,
+    "deserialization of unsafe values disabled: failed")
+end
+
+print("All tests passed.")
+
+do
+  print("\nSerializing large numeric-only tables:")
+
   local a, str = {}
   for i = 1, 100000 do a[i] = i end
 
@@ -278,5 +305,3 @@ do
   str = serpent.dump(a, {sparse = false})
   print("dump/sparse=false: "..(os.clock() - start), #str)
 end
-
-print("All tests passed.")

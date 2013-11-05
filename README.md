@@ -37,6 +37,10 @@ print(serpent.block(a)) -- multi-line indented, no self-ref section
 local fun, err = loadstring(serpent.dump(a))
 if err then error(err) end
 local copy = fun()
+
+-- or using serpent.load:
+local ok, copy = serpent.load(serpent.dump(a))
+print(ok and copy[3] == a[3])
 ```
 
 ## Functions
@@ -50,6 +54,12 @@ internal function, but set different options by default:
 
 Note that `line` and `block` functions return pretty-printed data structures and if you want to deserialize them, you need to add `return` before running them through `loadstring`.
 For example: `loadstring('return '..require('mobdebug').line("foo"))() == "foo"`.
+
+While you can use `loadstring` or `load` functions to load serialized fragments, Serpent also provides `load` function that adds safety checks and reports an error if there is any executable code in the fragment.
+
+* `ok, res = load(str[, {safe = true}])` -- loads serialized fragment; you need to pass `{safe = false}` as the second value if you want to turn safety checks off.
+
+Similar to `pcall` and `loadstring` calls, `load` returns status as the first value and the result or the error message as the second value.
 
 ## Options
 
@@ -166,6 +176,10 @@ Paul Kulchenko (paul@kulchenko.com)
 See LICENSE file.
 
 ## History
+
+### v0.26 (Nov 05 2013)
+  - Added `load` function that (safely) loads serialized/pretty-printed values.
+  - Updated documentation.
 
 ### v0.25 (Sep 29 2013)
   - Added `maxnum` option to limit the number of elements in tables.
