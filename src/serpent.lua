@@ -49,7 +49,9 @@ local function s(t, opts)
     if type(mt) == 'table' and (mt.__serialize or mt.__tostring) then -- knows how to serialize itself
       seen[t] = insref or spath
       if mt.__serialize then t = mt.__serialize(t) else t = tostring(t) end
-      ttype = type(t) end -- new value falls through to be serialized
+      ttype = type(t)
+      if ttype == 'string' and opts.rawstring then return tag..t end
+    end -- new value falls through to be serialized
     if ttype == "table" then
       if level >= maxl then return tag..'{}'..comment('max', level) end
       seen[t] = insref or spath
