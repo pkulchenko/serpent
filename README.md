@@ -57,7 +57,7 @@ For example: `loadstring('return '..require('mobdebug').line("foo"))() == "foo"`
 
 While you can use `loadstring` or `load` functions to load serialized fragments, Serpent also provides `load` function that adds safety checks and reports an error if there is any executable code in the fragment.
 
-* `ok, res = load(str[, {safe = true}])` -- loads serialized fragment; you need to pass `{safe = false}` as the second value if you want to turn safety checks off.
+* `ok, res = serpent.load(str[, {safe = true}])` -- loads serialized fragment; you need to pass `{safe = false}` as the second value if you want to turn safety checks off.
 
 Similar to `pcall` and `loadstring` calls, `load` returns status as the first value and the result or the error message as the second value.
 
@@ -79,10 +79,6 @@ Similar to `pcall` and `loadstring` calls, `load` returns status as the first va
 * custom (function) -- provide custom output for tables
 * name (string) -- name; triggers full serialization with self-ref section
 
-* `dump` sets `compact` and `sparse` to `true`;
-* `line` sets `sortkeys` and `comment` to `true`;
-* `block` sets `sortkeys` and `comment` to `true` and `indent` to `'  '`.
-
 These options can be provided as a second parameter to Serpent functions.
 
 ```lua
@@ -90,6 +86,12 @@ block(a, {fatal = true})
 line(a, {nocode = true, valignore = {[arrayToIgnore] = true}})
 function todiff(a) return dump(a, {nocode = true, indent = ' '}) end
 ```
+
+Serpent functions set these options to different default values:
+
+* `dump` sets `compact` and `sparse` to `true`;
+* `line` sets `sortkeys` and `comment` to `true`;
+* `block` sets `sortkeys` and `comment` to `true` and `indent` to `'  '`.
 
 ## Metatables with __tostring and __serialize methods
 
@@ -122,7 +124,14 @@ local result = require('serpent').block(content, {sortkeys = mysort})
 ## Formatters
 
 Serpent supports a way to provide a custom formatter that allows to fully
-customize the output. For example, the following call will apply
+customize the output. The formatter takes four values:
+
+* tag -- the name of the current element with '=' or an empty string in case of array index,
+* head -- an opening table bracket `{` and associated indentation and newline (if any),
+* body -- table elements concatenated into a string using commas and indentation/newlines (if any), and
+* tail -- a closing table bracket `}` and associated indentation and newline (if any).
+
+For example, the following call will apply
 `Foo{bar} notation to its output (used by Metalua to display ASTs):
 
 ```lua
