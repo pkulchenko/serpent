@@ -285,6 +285,16 @@ do
     "deserialization of unsafe values disabled: failed")
 end
 
+do
+  local a = {1, 2, 3, 4, [false] = 0, [true] = 0}
+  local f = assert(loadstring('return '..serpent.line(a)),
+    "serializing table with numerical and boolean keys: failed")
+  local _a = f()
+  assert(#_a == #a, "table with array and hash part has the right number of elements: failed")
+  assert(_a[3] == a[3], "table with array and hash parts has the right order of elements 1/2: failed")
+  assert(_a[4] == a[4], "table with array and hash parts has the right order of elements 2/2: failed")
+end
+
 print("All tests passed.")
 
 do
