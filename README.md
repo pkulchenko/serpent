@@ -186,6 +186,11 @@ See LICENSE file.
 
 ## History
 
+### v0.27 (Jan 11 2014)
+  - Fixed order of elements in the array part with `sortkeys=true` (fixes #13).
+  - Updated custom formatter documentation (closes #11).
+  - Added `load` function to deserialize; updated documentation (closes #9).
+
 ### v0.26 (Nov 05 2013)
   - Added `load` function that (safely) loads serialized/pretty-printed values.
   - Updated documentation.
