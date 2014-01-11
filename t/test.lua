@@ -290,14 +290,94 @@ do
   local f = assert(loadstring('return '..serpent.line(a)),
     "serializing table with numerical and boolean keys: failed")
   local _a = f()
-  assert(#_a == #a, "table with array and hash part has the right number of elements: failed")
-  assert(_a[3] == a[3], "table with array and hash parts has the right order of elements 1/2: failed")
-  assert(_a[4] == a[4], "table with array and hash parts has the right order of elements 2/2: failed")
+  assert(#_a == #a, "table with array and hash parts has the right number of elements: failed")
+  assert(_a[3] == a[3], "table with array and hash parts has the right order of elements 1/4: failed")
+  assert(_a[4] == a[4], "table with array and hash parts has the right order of elements 2/4: failed")
+
+  a = {1, [0] = 0}
+  f = assert(loadstring('return '..serpent.line(a)),
+    "serializing table with two numerical keys: failed")
+  local _a = f()
+  assert(_a[1] == 1, "table with array and hash parts has the right order of elements 3/4: failed")
+  assert(_a[0] == 0, "table with array and hash parts has the right order of elements 4/4: failed")
+end
+
+-- based on https://gist.github.com/mpeterv/8360307
+local function random_var(is_key, deep)
+  local key = math.random(1000)
+
+  if key <= 100 then
+    return is_key and 0 or nil
+  elseif key <= 200 then
+    return false
+  elseif key <= 500 then
+    return math.random(-1e6, 1e6)
+  elseif key <= 900 then
+    local len = math.random(0, 100)
+    local res = {}
+
+    for i=1, len do
+      table.insert(res, string.char(math.random(65, 90)))
+    end
+
+    return table.concat(res)
+  else
+    if deep > 3 or is_key then
+      return 0
+    else
+      local len = math.random(0, 10)
+      local res = {}
+
+      for i=1, len do
+        if math.random(0, 1) == 0 then
+          table.insert(res, random_var(false, deep+1))
+        else
+          res[random_var(true, deep+1)] = random_var(false, deep+1)
+        end
+      end
+      return res
+    end
+  end
+end
+
+local function deepsame(a1, a2)
+  if type(a1) == type(a2) and type(a1) == 'table' then
+    local e1, e2
+    while true do
+      e1, e2 = next(a1, e1), next(a2, e2)
+      -- looped through all the elements and they are the same
+      if e1 == nil and e2 == nil then return true end
+      local res
+      if e1 == e2 then
+        res = deepsame(a1[e1], a2[e2])
+      else
+        res = deepsame(a1[e1], a2[e1]) and deepsame(a1[e2], a2[e2])
+      end
+      -- found two different elements
+      if not res then return false end
+    end
+  end
+  return type(a1) == type(a2) and a1 == a2
+end
+
+do
+  local seed = os.time()
+  math.randomseed(seed)
+
+  local max = 100
+  for i = 1, max do
+    local x = random_var(false, 0)
+    local s = serpent.block(x)
+    local ok, x2 = serpent.load(s)
+    assert(ok, ("deserialization of randomly generated values %d/%d (seed=%d): failed"):format(i, max, seed))
+    assert(deepsame(x, x2),
+      ("randomly generated values are the same after deserialization %d/%d (seed=%d): failed"):format(i, max, seed))
+  end
 end
 
 print("All tests passed.")
 
-do
+if arg[1] == 'perf' then
   print("\nSerializing large numeric-only tables:")
 
   local a, str = {}
