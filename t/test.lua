@@ -375,6 +375,22 @@ do
   end
 end
 
+do -- test for Lua 5.2 compiled without loadstring
+  local a = {function() return 1 end}
+
+  local load, loadstring = _G.load, _G.loadstring
+  local f = assert(loadstring('load = loadstring or load; loadstring = nil; return '..serpent.line(a)),
+    "serializing table with function as a value (1/2): failed")
+  local _a = f()
+  assert(_a[1]() == a[1](), "deserialization of function value without loadstring (1/2): failed")
+  _G.load, _G.loadstring = load, loadstring
+
+  local f = assert(loadstring('return '..serpent.line(a)),
+    "serializing table with function as a value (2/2): failed")
+  local _a = f()
+  assert(_a[1]() == a[1](), "deserialization of function value without loadstring (2/2): failed")
+end
+
 print("All tests passed.")
 
 if arg[1] == 'perf' then
