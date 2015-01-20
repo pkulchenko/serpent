@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.272 -- (C) 2012-13 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.273 -- (C) 2012-13 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true, cdata = true}
@@ -74,8 +74,8 @@ local function s(t, opts)
             local sname = safename(iname, gensym(key)) -- iname is table for local variables
             sref[#sref] = val2str(key,sname,indent,sname,iname,true) end
           sref[#sref+1] = 'placeholder'
-          local path = seen[t]..'['..(seen[key] or globals[key] or gensym(key))..']'
-          sref[#sref] = path..space..'='..space..(seen[value] or val2str(value,nil,indent,path))
+          local path = seen[t]..'['..tostring(seen[key] or globals[key] or gensym(key))..']'
+          sref[#sref] = path..space..'='..space..tostring(seen[value] or val2str(value,nil,indent,path))
         else
           out[#out+1] = val2str(value,key,indent,insref,seen[t],plainindex,level+1)
         end
