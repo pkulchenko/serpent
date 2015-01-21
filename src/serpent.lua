@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.273 -- (C) 2012-15 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.279 -- (C) 2012-15 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true, cdata = true}
@@ -103,12 +103,33 @@ local function s(t, opts)
   return not name and body..warn or "do local "..body..sepr..tail.."return "..name..sepr.."end"
 end
 
+if not setfenv then -- Lua 5.2+
+  -- based on http://lua-users.org/lists/lua-l/2010-06/msg00314.html
+  -- this assumes f is a function
+  local function findenv(f)
+    local level = 1
+    repeat
+      local name, value = debug.getupvalue(f, level)
+      if name == '_ENV' then return level, value end
+      level = level + 1
+    until name == nil
+    return nil end
+  getfenv = function (f) return(select(2, findenv(f)) or _G) end
+  setfenv = function (f, t)
+    local level = findenv(f)
+    if level then debug.setupvalue(f, level, t) end
+    return f end
+end
+
 local function deserialize(data, opts)
   local f, res = (loadstring or load)('return '..data)
   if not f then f, res = (loadstring or load)(data) end
   if not f then return f, res end
   if opts and opts.safe == false then return pcall(f) end
 
+  local env = {}
+  env._G = setmetatable(env, { __index = getfenv(f) })
+  f = setfenv(f, env)
   local count, thread = 0, coroutine.running()
   local h, m, c = debug.gethook(thread)
   debug.sethook(function (e, l) count = count + 1

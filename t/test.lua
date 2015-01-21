@@ -392,6 +392,25 @@ do -- test for Lua 5.2 compiled without loadstring
   assert(_a[1]() == a[1](), "deserialization of function value without loadstring (2/2): failed")
 end
 
+do
+  local ok, res = serpent.load("do error('not allowed') end")
+  assert(not ok and res:find("cannot call functions"),
+    "not allowing calling functions from serialized content: failed")
+
+  local print = _G.print
+  local ok, res = serpent.load("do print = error end")
+  assert(ok and _G.print == print and print ~= error,
+    "not allowing resetting `print` from serialized content (1/3): failed")
+
+  local ok, res = serpent.load("do _G.print = error end")
+  assert(ok and _G.print == print and _G.print ~= error,
+    "not allowing resetting `print` from serialized content (2/3): failed")
+
+  local ok, res = serpent.load("do _G._G.print = error end")
+  assert(ok and _G.print == print and print ~= error,
+    "not allowing resetting `print` from serialized content (3/3): failed")
+end
+
 print("All tests passed.")
 
 if arg[1] == 'perf' then
