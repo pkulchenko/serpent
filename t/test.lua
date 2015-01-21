@@ -44,6 +44,7 @@ print("line: " .. serpent.line(a, {valignore = {[d] = true}}) .. "\n")
 local str = serpent.dump(a, {valignore = {[d] = true}})
 print("full: " .. str .. "\n")
 
+local loadstring = loadstring or load
 local fun, err = assert(loadstring(str))
 
 assert(loadstring(serpent.line(a, {name = '_'})), "line() method produces deserializable output: failed")
@@ -379,13 +380,13 @@ do -- test for Lua 5.2 compiled without loadstring
   local a = {function() return 1 end}
 
   local load, loadstring = _G.load, _G.loadstring
-  local f = assert(loadstring('load = loadstring or load; loadstring = nil; return '..serpent.line(a)),
+  local f = assert((loadstring or load)('load = loadstring or load; loadstring = nil; return '..serpent.line(a)),
     "serializing table with function as a value (1/2): failed")
   local _a = f()
   assert(_a[1]() == a[1](), "deserialization of function value without loadstring (1/2): failed")
   _G.load, _G.loadstring = load, loadstring
 
-  local f = assert(loadstring('return '..serpent.line(a)),
+  local f = assert((loadstring or load)('return '..serpent.line(a)),
     "serializing table with function as a value (2/2): failed")
   local _a = f()
   assert(_a[1]() == a[1](), "deserialization of function value without loadstring (2/2): failed")
