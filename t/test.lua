@@ -400,15 +400,19 @@ do
   local print = _G.print
   local ok, res = serpent.load("do print = error end")
   assert(ok and _G.print == print and print ~= error,
-    "not allowing resetting `print` from serialized content (1/3): failed")
+    "not allowing resetting `print` from serialized content (1/4): failed")
 
   local ok, res = serpent.load("do _G.print = error end")
   assert(ok and _G.print == print and _G.print ~= error,
-    "not allowing resetting `print` from serialized content (2/3): failed")
+    "not allowing resetting `print` from serialized content (2/4): failed")
 
   local ok, res = serpent.load("do _G._G.print = error end")
   assert(ok and _G.print == print and print ~= error,
-    "not allowing resetting `print` from serialized content (3/3): failed")
+    "not allowing resetting `print` from serialized content (3/4): failed")
+
+  local ok, res = serpent.load("do _G = nil _G.print = error end")
+  assert(ok and _G.print == print and print ~= error,
+    "not allowing resetting `print` from serialized content (4/4): failed")
 end
 
 print("All tests passed.")

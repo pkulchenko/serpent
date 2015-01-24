@@ -104,42 +104,16 @@ local function s(t, opts)
 end
 
 local function deserialize(data, opts)
-  local f, res = (loadstring or load)('return '..data)
-  if not f then f, res = (loadstring or load)(data) end
+  local env = (opts and opts.safe == false) and G
+    or setmetatable({}, {
+        __index = function(t,k) return t end,
+        __call = function(t,...) error("cannot call functions") end
+      })
+  local f, res = (loadstring or load)('return '..data, nil, nil, env)
+  if not f then f, res = (loadstring or load)(data, nil, nil, env) end
   if not f then return f, res end
-  if opts and opts.safe == false then return pcall(f) end
-
-  local setfenv, getfenv = setfenv, getfenv
-  if not setfenv then -- Lua 5.2+
-    -- based on http://lua-users.org/lists/lua-l/2010-06/msg00314.html
-    -- this assumes f is a function
-    local function findenv(f)
-      local level = 1
-      repeat
-        local name, value = debug.getupvalue(f, level)
-        if name == '_ENV' then return level, value end
-        level = level + 1
-      until name == nil
-      return nil end
-    getfenv = function (f) return(select(2, findenv(f)) or _G) end
-    setfenv = function (f, t)
-      local level = findenv(f)
-      if level then debug.setupvalue(f, level, t) end
-      return f end
-  end
-
-  local env = {}
-  env._G = setmetatable(env, { __index = getfenv(f) })
-  f = setfenv(f, env)
-  local count, thread = 0, coroutine.running()
-  local h, m, c = debug.gethook(thread)
-  debug.sethook(function (e, l) count = count + 1
-    if count >= 3 then error("cannot call functions") end
-  end, "c")
-  local res = {pcall(f)}
-  count = 0 -- set again, otherwise it's tripped on the next sethook
-  debug.sethook(thread, h, m, c)
-  return (table.unpack or unpack)(res)
+  if setfenv then setfenv(f, env) end
+  return pcall(f)
 end
 
 local function merge(a, b) if b then for k,v in pairs(b) do a[k] = v end end; return a; end
