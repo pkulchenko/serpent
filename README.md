@@ -186,6 +186,16 @@ See LICENSE file.
 
 ## History
 
+### v0.28 (May 06 2015)
+  - Switched to a method proposed by @SoniEx2 to disallow function calls (#15).
+  - Added more `tostring` for Lua 5.3 support (pkulchenko/ZeroBraneStudio#401).
+  - Updated environment handling to localize the impact (#15).
+  - Added setting env to protect against assigning global functions (closes #15).
+  - Updated tests to work with Lua 5.3.
+  - Added explicit `tostring` for Lua 5.3 with `LUA_NOCVTN2S` set (pkulchenko/ZeroBraneStudio#401).
+  - Fixed crash when not all Lua standard libraries are loaded (thanks to Tommy Nguyen).
+  - Improved Lua 5.2 support for serialized functions.
+
 ### v0.27 (Jan 11 2014)
   - Fixed order of elements in the array part with `sortkeys=true` (fixes #13).
   - Updated custom formatter documentation (closes #11).
