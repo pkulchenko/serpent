@@ -303,6 +303,11 @@ do
   assert(_a[0] == 0, "table with array and hash parts has the right order of elements 4/4: failed")
 end
 
+do
+  local a = {setmetatable({abc = 123}, {__tostring = function() error("meta!") end})}
+  assert(pcall(serpent.line, a) == true, "`__tostring` method that returns an error is still serialized correctly.")
+end
+
 -- based on https://gist.github.com/mpeterv/8360307
 local function random_var(is_key, deep)
   local key = math.random(1000)
