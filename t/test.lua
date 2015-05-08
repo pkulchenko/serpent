@@ -308,6 +308,18 @@ do
   assert(pcall(serpent.line, a) == true, "`__tostring` method that returns an error is still serialized correctly.")
 end
 
+do
+  local a = serpent.line({ pi = math.pi })
+  local ok, t = serpent.load(a)
+  assert(ok, "pi is serialized and deserialized (1/2): failed")
+  assert(math.pi == t.pi, "pi is deserialized with the same value as the original (1/2): failed")
+
+  a = serpent.line({pi = math.pi}, {numformat = "%1.16e"})
+  ok, t = serpent.load(a)
+  assert(ok, "pi is serialized and deserialized (2/2): failed")
+  assert(math.pi == t.pi, "pi is deserialized with the same value as the original with '%1.16e' format (2/2): failed")
+end
+
 -- based on https://gist.github.com/mpeterv/8360307
 local function random_var(is_key, deep)
   local key = math.random(1000)
