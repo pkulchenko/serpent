@@ -76,6 +76,7 @@ Similar to `pcall` and `loadstring` calls, `load` returns status as the first va
 * numformat (string; "%.17g") -- specify format for numeric values (shortest possible round-trippable double)
 * valignore (table) -- allows to specify a list of values to ignore (as keys)
 * keyallow (table) -- allows to specify the list of keys to be serialized. Any keys not in this list are not included in final output (as keys)
+* keyignore (table) -- allows to specity the list of keys to ignore in serialization.
 * valtypeignore (table) -- allows to specify a list of value *types* to ignore (as keys)
 * custom (function) -- provide custom output for tables
 * name (string) -- name; triggers full serialization with self-ref section
