@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.285 -- (C) 2012-15 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.286 -- (C) 2012-15 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true, cdata = true}
@@ -49,11 +49,15 @@ local function s(t, opts)
       sref[#sref+1] = spath..space..'='..space..seen[t]
       return tag..'nil'..comment('ref', level) end
     -- protect from those cases where __tostring may fail
-    if type(mt) == 'table' and pcall(function() return mt.__tostring and mt.__tostring(t) end)
-    and (mt.__serialize or mt.__tostring) then -- knows how to serialize itself
-      seen[t] = insref or spath
-      if mt.__serialize then t = mt.__serialize(t) else t = tostring(t) end
-      ttype = type(t) end -- new value falls through to be serialized
+    if type(mt) == 'table' then
+      local to, tr = pcall(function() return mt.__tostring(t) end)
+      local so, sr = pcall(function() return mt.__serialize(t) end)
+      if (to or so) then -- knows how to serialize itself
+        seen[t] = insref or spath
+        if so then t = sr else t = tostring(t) end
+        ttype = type(t)
+      end -- new value falls through to be serialized
+    end
     if ttype == "table" then
       if level >= maxl then return tag..'{}'..comment('max', level) end
       seen[t] = insref or spath
