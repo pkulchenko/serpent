@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.286 -- (C) 2012-15 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.287 -- (C) 2012-17 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true, cdata = true}
@@ -99,9 +99,9 @@ local function s(t, opts)
       return tag..globerr(t, level)
     elseif ttype == 'function' then
       seen[t] = insref or spath
+      if opts.nocode then return tag.."function() --[[..skipped..]] end"..comment(t, level) end
       local ok, res = pcall(string.dump, t)
-      local func = ok and ((opts.nocode and "function() --[[..skipped..]] end" or
-        "((loadstring or load)("..safestr(res)..",'@serialized'))")..comment(t, level))
+      local func = ok and "((loadstring or load)("..safestr(res)..",'@serialized'))"..comment(t, level)
       return tag..(func or globerr(t, level))
     else return tag..safestr(t) end -- handle all other types
   end
