@@ -73,6 +73,7 @@ Similar to `pcall` and `loadstring` calls, `load` returns status as the first va
 * nohuge (true/False) -- disable checking numbers against undefined and huge values
 * maxlevel (number) -- specify max level up to which to expand nested tables
 * maxnum (number) -- specify max number of elements in a table
+* maxlength (number) -- specify max length for all table elements
 * numformat (string; "%.17g") -- specify format for numeric values (shortest possible round-trippable double)
 * valignore (table) -- allows to specify a list of values to ignore (as keys)
 * keyallow (table) -- allows to specify the list of keys to be serialized. Any keys not in this list are not included in final output (as keys)

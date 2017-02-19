@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.287 -- (C) 2012-17 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.288 -- (C) 2012-17 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true, cdata = true}
@@ -15,6 +15,7 @@ local function s(t, opts)
   local name, indent, fatal, maxnum = opts.name, opts.indent, opts.fatal, opts.maxnum
   local sparse, custom, huge = opts.sparse, opts.custom, not opts.nohuge
   local space, maxl = (opts.compact and '' or ' '), (opts.maxlevel or math.huge)
+  local maxlen = tonumber(opts.maxlength)
   local iname, comm = '_'..(name or ''), opts.comment and (tonumber(opts.comment) or math.huge)
   local numformat = opts.numformat or "%.17g"
   local seen, sref, syms, symn = {}, {'local '..iname..'={}'}, {}, 0
@@ -59,9 +60,10 @@ local function s(t, opts)
       end -- new value falls through to be serialized
     end
     if ttype == "table" then
-      if level >= maxl then return tag..'{}'..comment('max', level) end
+      if level >= maxl then return tag..'{}'..comment('maxlvl', level) end
       seen[t] = insref or spath
       if next(t) == nil then return tag..'{}'..comment(t, level) end -- table empty
+      if maxlen and maxlen < 0 then return tag..'{}'..comment('maxlen', level) end
       local maxn, o, out = math.min(#t, maxnum or #t), {}, {}
       for key = 1, maxn do o[key] = key end
       if not maxnum or #o < maxnum then
@@ -87,6 +89,10 @@ local function s(t, opts)
           sref[#sref] = path..space..'='..space..tostring(seen[value] or val2str(value,nil,indent,path))
         else
           out[#out+1] = val2str(value,key,indent,insref,seen[t],plainindex,level+1)
+          if maxlen then
+            maxlen = maxlen - #out[#out]
+            if maxlen < 0 then break end
+          end
         end
       end
       local prefix = string.rep(indent or '', level)
