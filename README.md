@@ -132,8 +132,9 @@ customize the output. The formatter takes four values:
 
 * tag -- the name of the current element with '=' or an empty string in case of array index,
 * head -- an opening table bracket `{` and associated indentation and newline (if any),
-* body -- table elements concatenated into a string using commas and indentation/newlines (if any), and
-* tail -- a closing table bracket `}` and associated indentation and newline (if any).
+* body -- table elements concatenated into a string using commas and indentation/newlines (if any),
+* tail -- a closing table bracket `}` and associated indentation and newline (if any), and
+* level -- the current level.
 
 For example, the following call will apply
 `Foo{bar} notation to its output (used by Metalua to display ASTs):

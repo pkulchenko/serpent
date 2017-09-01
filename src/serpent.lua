@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.288 -- (C) 2012-17 Paul Kulchenko; MIT License
+local n, v = "serpent", 0.289 -- (C) 2012-17 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true, cdata = true}
@@ -99,7 +99,7 @@ local function s(t, opts)
       local head = indent and '{\n'..prefix..indent or '{'
       local body = table.concat(out, ','..(indent and '\n'..prefix..indent or space))
       local tail = indent and "\n"..prefix..'}' or '}'
-      return (custom and custom(tag,head,body,tail) or tag..head..body..tail)..comment(t, level)
+      return (custom and custom(tag,head,body,tail,level) or tag..head..body..tail)..comment(t, level)
     elseif badtype[ttype] then
       seen[t] = insref or spath
       return tag..globerr(t, level)
