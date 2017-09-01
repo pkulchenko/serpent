@@ -1,4 +1,4 @@
-local n, v = "serpent", 0.289 -- (C) 2012-17 Paul Kulchenko; MIT License
+local n, v = "serpent", "0.29" -- (C) 2012-17 Paul Kulchenko; MIT License
 local c, d = "Paul Kulchenko", "Lua serializer and pretty printer"
 local snum = {[tostring(1/0)]='1/0 --[[math.huge]]',[tostring(-1/0)]='-1/0 --[[-math.huge]]',[tostring(0/0)]='0/0'}
 local badtype = {thread = true, userdata = true, cdata = true}
@@ -15,7 +15,7 @@ local function s(t, opts)
   local name, indent, fatal, maxnum = opts.name, opts.indent, opts.fatal, opts.maxnum
   local sparse, custom, huge = opts.sparse, opts.custom, not opts.nohuge
   local space, maxl = (opts.compact and '' or ' '), (opts.maxlevel or math.huge)
-  local maxlen = tonumber(opts.maxlength)
+  local maxlen, metatostring = tonumber(opts.maxlength), opts.metatostring
   local iname, comm = '_'..(name or ''), opts.comment and (tonumber(opts.comment) or math.huge)
   local numformat = opts.numformat or "%.17g"
   local seen, sref, syms, symn = {}, {'local '..iname..'={}'}, {}, 0
@@ -53,9 +53,9 @@ local function s(t, opts)
     if type(mt) == 'table' then
       local to, tr = pcall(function() return mt.__tostring(t) end)
       local so, sr = pcall(function() return mt.__serialize(t) end)
-      if (to or so) then -- knows how to serialize itself
+      if (opts.metatostring ~= false and to or so) then -- knows how to serialize itself
         seen[t] = insref or spath
-        if so then t = sr else t = tostring(t) end
+        t = so and sr or tr
         ttype = type(t)
       end -- new value falls through to be serialized
     end

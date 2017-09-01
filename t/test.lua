@@ -143,6 +143,11 @@ do
   assert(_a.y == 12, "metatable with __tostring and __index 1: failed")
   assert(_a[1] == 'a', "metatable with __tostring and __index 2: failed")
   assert(_a.x == 1, "metatable with __tostring and __index 3: failed")
+
+  -- check that __tostring is not used when disabled
+  local _a = assert(loadstring(serpent.dump(a, {sparse = false, nocode = true, metatostring = false})))()
+  assert(_a[1] == 'a', "metatable with disabled __tostring and __index 1: failed")
+  assert(_a[2] == 'b', "metatable with disabled __tostring and __index 2: failed")
 end
 
 -- test circular reference in self-reference section
