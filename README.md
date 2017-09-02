@@ -193,6 +193,19 @@ See LICENSE file.
 
 ## History
 
+### v0.30 (Sep 01 2017)
+  - Updated `pairs` to avoid using `__pairs` in Lua 5.2+.
+  - Added `metatostring` option to disable `__tostring` processing during serialization.
+  - Added `level` to the parameters of the custom function (closes #25).
+  - Added `maxlength` option to limit the space taken by table elements.
+  - Optimized serialization of functions when `nocode` option is specified.
+  - Added protection from `__serialize` check failing (pkulchenko/ZeroBraneStudio#732).
+  - Added `keyignore` option for the serializer.
+  - Added check for environments that may not have 'default' tables as tables.
+  - Added numeric format to preserve floating point precision (closes #17).
+  - Added using `debug.metatable` when available.
+  - Improved handling of failures in `__tostring` (pkulchenko/ZeroBraneStudio#446).
+
 ### v0.28 (May 06 2015)
   - Switched to a method proposed by @SoniEx2 to disallow function calls (#15).
   - Added more `tostring` for Lua 5.3 support (pkulchenko/ZeroBraneStudio#401).
