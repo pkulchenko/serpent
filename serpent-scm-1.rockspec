@@ -1,8 +1,7 @@
 package = "serpent"
-version = "0.19-1"
+version = "scm-1"
 source = {
   url = "git://github.com/pkulchenko/serpent.git",
-  tag = "0.19"
 }
 
 description = {
@@ -13,7 +12,7 @@ description = {
 }
 
 dependencies = {
-  "lua >= 5.1",
+  "lua >= 5.1, < 5.4",
 }
 
 build = {
@@ -23,5 +22,3 @@ build = {
   },
   copy_directories = { "t" },
 }
-
--- vim: ft=lua
