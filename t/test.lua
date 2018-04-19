@@ -163,6 +163,18 @@ do
   assert(_a[t1].rec1 == _a[t1], "circular reference in self-reference section 2: failed")
 end
 
+-- test circular reference with the table first seen as a value in a table key
+do
+  local a = {}
+  local table1 = {}
+  a[{table1}] = table1
+
+  local _a = assert(loadstring(serpent.dump(a, {sparse = false, nocode = true})))()
+  local t1 = next(_a)
+  assert(t1[1], "circular reference with the table first seen as a value in a table key 1: failed")
+  assert(t1[1] == _a[t1], "circular reference with the table first seen as a value in a table key 2: failed")
+end
+
 -- test userdata with __tostring method that returns type starting with digits
 if _VERSION == 'Lua 5.1' then
   local userdata = newproxy(true)
