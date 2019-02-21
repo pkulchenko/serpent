@@ -77,6 +77,7 @@ Similar to `pcall` and `loadstring` calls, `load` returns status as the first va
 * metatostring (True/false) -- use `__tostring` metamethod when serializing tables (**v0.29**);
 set to `false` to disable and serialize the table as is, even when `__tostring` is present.
 * numformat (string; "%.17g") -- specify format for numeric values (shortest possible round-trippable double).
+Use "%.16g" for better readability and "%.17g" (the default value) to preserve floating point precision.
 * valignore (table) -- allows to specify a list of values to ignore (as keys).
 * keyallow (table) -- allows to specify the list of keys to be serialized.
 Any keys not in this list are not included in final output (as keys).
