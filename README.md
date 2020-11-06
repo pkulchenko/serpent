@@ -69,6 +69,7 @@ Similar to `pcall` and `loadstring` calls, `load` returns status as the first va
 * sparse (true/false) -- force sparse encoding (no nil filling based on `#t`).
 * compact (true/false) -- remove spaces.
 * fatal (true/False) -- raise fatal error on non-serilizable values.
+* fixradix (true/False) -- change radix character set depending on locale to decimal dot.
 * nocode (true/False) -- disable bytecode serialization for easy comparison.
 * nohuge (true/False) -- disable checking numbers against undefined and huge values.
 * maxlevel (number) -- specify max level up to which to expand nested tables.

@@ -328,13 +328,23 @@ end
 do
   local a = serpent.line({ pi = math.pi })
   local ok, t = serpent.load(a)
-  assert(ok, "pi is serialized and deserialized (1/2): failed")
-  assert(math.pi == t.pi, "pi is deserialized with the same value as the original (1/2): failed")
+  assert(ok, "pi is serialized and deserialized (1/3): failed")
+  assert(math.pi == t.pi, "pi is deserialized with the same value as the original (1/3): failed")
 
   a = serpent.line({pi = math.pi}, {numformat = "%1.16e"})
   ok, t = serpent.load(a)
-  assert(ok, "pi is serialized and deserialized (2/2): failed")
-  assert(math.pi == t.pi, "pi is deserialized with the same value as the original with '%1.16e' format (2/2): failed")
+  assert(ok, "pi is serialized and deserialized (2/3): failed")
+  assert(math.pi == t.pi, "pi is deserialized with the same value as the original with '%1.16e' format (2/3): failed")
+
+  local locale = os.setlocale()
+  os.setlocale("German_Germany")
+
+  a = serpent.line({pi = math.pi}, {fixradix = true})
+  ok, t = serpent.load(a)
+  assert(ok, "pi is serialized and deserialized with fr_FR locale (3/3): failed")
+  assert(math.pi == t.pi, "pi is deserialized with the same value as the original with fr_FR locale (3/3): failed")
+
+  os.setlocale(locale)
 end
 
 -- based on https://gist.github.com/mpeterv/8360307
