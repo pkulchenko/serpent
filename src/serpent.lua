@@ -56,7 +56,8 @@ local function s(t, opts)
       (name ~= nil and sname..space..'='..space or '')
     if seen[t] then -- already seen this element
       sref[#sref+1] = spath..space..'='..space..seen[t]
-      return tag..'nil'..comment('ref', level) end
+      return tag..'nil'..comment('ref', level)
+    end
     -- protect from those cases where __tostring may fail
     if type(mt) == 'table' and metatostring ~= false then
       local to, tr = pcall(function() return mt.__tostring(t) end)
@@ -76,7 +77,10 @@ local function s(t, opts)
       for key = 1, maxn do o[key] = key end
       if not maxnum or #o < maxnum then
         local n = #o -- n = n + 1; o[n] is much faster than o[#o+1] on large tables
-        for key in pairs(t) do if o[key] ~= key then n = n + 1; o[n] = key end end end
+        for key in pairs(t) do
+          if o[key] ~= key then n = n + 1; o[n] = key end
+        end
+      end
       if maxnum and #o > maxnum then o[maxnum+1] = nil end
       if opts.sortkeys and #o > maxn then alphanumsort(o, t, opts.sortkeys) end
       local sparse = sparse and #o > maxn -- disable sparsness if only numeric keys (shorter output)
@@ -91,7 +95,8 @@ local function s(t, opts)
           if not seen[key] and not globals[key] then
             sref[#sref+1] = 'placeholder'
             local sname = safename(iname, gensym(key)) -- iname is table for local variables
-            sref[#sref] = val2str(key,sname,indent,sname,iname,true) end
+            sref[#sref] = val2str(key,sname,indent,sname,iname,true)
+          end
           sref[#sref+1] = 'placeholder'
           local path = seen[t]..'['..tostring(seen[key] or globals[key] or gensym(key))..']'
           sref[#sref] = path..space..'='..space..tostring(seen[value] or val2str(value,nil,indent,path))
