@@ -1,7 +1,8 @@
 package = "serpent"
-version = "scm-1"
+version = "0.30-2"
 source = {
   url = "git+https://github.com/pkulchenko/serpent",
+  tag = "0.30",
 }
 
 description = {
@@ -12,7 +13,7 @@ description = {
 }
 
 dependencies = {
-  "lua >= 5.1, < 5.4",
+  "lua >= 5.1, < 5.5",
 }
 
 build = {
