@@ -1,0 +1,26 @@
+language: python
+sudo: false
+
+env:
+  - LUA="lua=5.1"
+  - LUA="lua=5.2"
+  - LUA="lua=5.3"
+  - LUA="luajit=2.0"
+  - LUA="luajit=2.1"
+
+before_install:
+  - pip install codecov
+  - pip install hererocks
+  - hererocks lua_install --$LUA -r latest
+  - source lua_install/bin/activate
+  - luarocks install cluacov
+
+install:
+  - luarocks make
+
+script:
+  - lua -lluacov t/test.lua
+
+after_script:
+  - luacov
+  - codecov -X gcov
